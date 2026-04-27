@@ -156,6 +156,46 @@ form input:focus { border-color: var(--gold); }
 
 .sidebar-footer { margin-top: auto; }
 
+/* Designer Signature */
+.designer-signature {
+    margin: 2rem 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 1rem;
+    opacity: 0.7;
+    transition: 0.5s;
+}
+
+.designer-signature:hover {
+    opacity: 1;
+}
+
+.designer-signature span {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    background: linear-gradient(to right, var(--gold), #fff, var(--gold));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-size: 200% auto;
+    animation: shine 4s linear infinite;
+    font-weight: 700;
+    font-style: italic;
+}
+
+.sig-line {
+    width: 40px;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--gold), transparent);
+}
+
+@keyframes shine {
+    to { background-position: 200% center; }
+}
+
 /* Main Content */
 .content {
     flex: 1;
