@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BTP - Borsa Takip Programı</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22 fill=%22%23d4af37%22>📈</text></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+</head>
+<body>
+    <div class="app-layout">
+        <aside class="sidebar">
+            <div class="brand">
+                <i class="fa-solid fa-chart-line gold-text"></i>
+                <h1>BTP - <span style="font-weight: 300;">Borsa Takip Programı</span></h1>
+            </div>
+
+            <div class="summary-cards">
+                <div class="sum-card">
+                    <label>Toplam Değer</label>
+                    <div id="currentValue" class="value">₺0,00</div>
+                </div>
+                <div class="sum-card">
+                    <label>Toplam Maliyet</label>
+                    <div id="totalCost" class="value">₺0,00</div>
+                </div>
+                <div class="sum-card highlight">
+                    <label>Net Kâr / Zarar</label>
+                    <div id="totalProfit" class="value">₺0,00</div>
+                    <span id="totalProfitPercent" class="badge">0%</span>
+                </div>
+            </div>
+
+            <div class="sidebar-footer">
+                <button id="openSyncModalBtn" class="btn-ghost"><i class="fa-solid fa-cloud"></i> Bulut Cüzdanı</button>
+            </div>
+        </aside>
+
+        <main class="content">
+            <header class="main-header">
+                <h2>Varlıklarım</h2>
+                <div class="actions">
+                    <button id="openAddStockBtn" class="btn-action gold"><i class="fa-solid fa-plus"></i> Hisse Ekle</button>
+                    <button id="deleteAllBtn" class="btn-action red"><i class="fa-solid fa-trash"></i> Portföyü Sıfırla</button>
+                </div>
+            </header>
+
+            <div class="table-wrapper">
+                <table id="portfolioTable">
+                    <thead>
+                        <tr>
+                            <th>Hisse</th>
+                            <th>Adet</th>
+                            <th>Maliyet</th>
+                            <th>Fiyat</th>
+                            <th>T. Değer</th>
+                            <th>Kâr/Zarar</th>
+                            <th>Değişim</th>
+                            <th>İşlem</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+                <div id="emptyState" class="empty">Henüz hisse eklenmedi.</div>
+            </div>
+
+            <!-- New Valuation Section -->
+            <header class="main-header" style="margin-top: 4rem;">
+                <h2>Değerleme Analizi</h2>
+                <div class="actions">
+                    <button id="addAnalysisBtn" class="btn-action gold"><i class="fa-solid fa-plus"></i> Analiz Ekle</button>
+                    <button id="deleteAnalysisBtn" class="btn-action red"><i class="fa-solid fa-trash"></i> Listeyi Temizle</button>
+                </div>
+            </header>
+
+            <div class="table-wrapper" style="overflow-x: auto;">
+                <table id="analysisTable">
+                    <thead>
+                        <tr>
+                            <th>Hisse</th>
+                            <th>Sektör</th>
+                            <th>Potansiyel</th>
+                            <th>İskonto</th>
+                            <th>Fiyat</th>
+                            <th>Hedef</th>
+                            <th>Bilanço</th>
+                            <th>Borç/Özk.</th>
+                            <th>Hikaye</th>
+                            <th>Marj</th>
+                            <th>Puan</th>
+                            <th style="text-align:right;">İşlem</th>
+                        </tr>
+                    </thead>
+                    <tbody id="analysisTableBody"></tbody>
+                </table>
+                <div id="emptyAnalysisState" class="empty">Henüz analiz verisi eklenmedi.</div>
+            </div>
+
+            <div class="charts-grid">
+                <div class="chart-container">
+                    <h3>Dağılım</h3>
+                    <canvas id="distributionChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3>Performans</h3>
+                    <canvas id="performanceChart"></canvas>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add Stock Modal -->
+    <div id="addStockModal" class="modal">
+        <div class="modal-content">
+            <h3>Portföye Hisse Ekle</h3>
+            <form id="addStockForm">
+                <input type="text" id="ticker" placeholder="Hisse Kodu (THYAO)" required>
+                <div class="grid">
+                    <input type="number" id="lots" placeholder="Adet" required>
+                    <input type="number" id="avgCost" placeholder="Maliyet" step="0.01" required>
+                </div>
+                <input type="number" id="currentPrice" placeholder="Güncel Fiyat" step="0.01" required>
+                <div class="modal-btns">
+                    <button type="submit" class="btn-primary">Portföye Ekle</button>
+                    <button type="button" class="btn-ghost" onclick="closeModal('addStockModal')">İptal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Stock Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <h3>Hisse Düzenle</h3>
+            <form id="editStockForm">
+                <input type="hidden" id="editId">
+                <input type="text" id="editTicker" readonly>
+                <div class="grid">
+                    <input type="number" id="editLots" required>
+                    <input type="number" id="editAvgCost" step="0.01" required>
+                </div>
+                <input type="number" id="editCurrentPrice" step="0.01" required>
+                <div class="modal-btns">
+                    <button type="submit" class="btn-primary">Güncelle</button>
+                    <button type="button" class="btn-ghost" onclick="closeModal('editModal')">İptal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="syncModal" class="modal">
+        <div class="modal-content" style="width: 480px; padding: 2.5rem;">
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <i class="fa-solid fa-cloud gold-text" style="font-size: 2.5rem; margin-bottom: 1rem;"></i>
+                <h3 style="margin-bottom: 0.5rem; font-family: 'Playfair Display', serif;">Bulut Cüzdanı</h3>
+                <p style="font-size: 0.8rem; color: var(--text-muted);">Verilerinizi güvenle yedekleyin veya geri yükleyin.</p>
+            </div>
+            
+            <div class="sync-section">
+                <h4 style="font-size: 0.85rem; color: var(--gold); margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 1px;">
+                    <i class="fa-solid fa-shield-halved"></i> Verileri Yedekle
+                </h4>
+                <div class="input-group">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" id="backupPassword" placeholder="Yedekleme Şifresi (Opsiyonel)">
+                </div>
+                <button id="backupBtn" class="btn-primary" style="margin-top: 0.5rem;">Cüzdan Oluştur</button>
+                
+                <div id="walletBox" class="wallet-id-container" style="display:none; margin-top:1.5rem;">
+                    <label>Cüzdan Kimliğiniz:</label>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <code id="walletIdDisplay"></code>
+                        <button id="copyBtn" class="btn-icon" title="Kopyala"><i class="fa-solid fa-copy"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <div style="height: 1px; background: var(--border); margin: 2rem 0;"></div>
+
+            <div class="sync-section">
+                <h4 style="font-size: 0.85rem; color: var(--gold); margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 1px;">
+                    <i class="fa-solid fa-download"></i> Geri Yükle
+                </h4>
+                <div class="input-group">
+                    <i class="fa-solid fa-key"></i>
+                    <input type="text" id="restoreInput" placeholder="Cüzdan ID">
+                </div>
+                <div class="input-group" style="margin-top: 0.8rem;">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" id="restorePassword" placeholder="Şifre">
+                </div>
+                <button id="restoreBtn" class="btn-primary" style="margin-top: 1rem; background: transparent; border: 1px solid var(--gold); color: var(--gold);">Verileri İndir</button>
+            </div>
+
+            <button class="btn-ghost" style="margin-top: 2rem; border-color: transparent;" onclick="closeModal('syncModal')">Dashboard'a Dön</button>
+        </div>
+    </div>
+
+    <!-- Analysis Modal -->
+    <div id="analysisModal" class="modal">
+        <div class="modal-content" style="width: 600px;">
+            <h3 id="analysisModalTitle">Yeni Analiz Ekle</h3>
+            <form id="analysisForm">
+                <input type="hidden" id="analysisId">
+                <div class="grid">
+                    <input type="text" id="a_ticker" placeholder="Hisse Kodu" required>
+                    <input type="text" id="a_sector" placeholder="Sektör" required>
+                </div>
+                <div class="grid">
+                    <input type="number" id="a_currentPrice" placeholder="Güncel Fiyat" step="0.01" required>
+                    <input type="number" id="a_targetPrice" placeholder="Hedef Fiyat" step="0.01" required>
+                </div>
+                <div style="margin-top: 1rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; color: var(--text-muted); font-size: 0.8rem;">Puanlama (0-1)</div>
+                <div class="grid">
+                    <input type="number" id="a_balance" placeholder="Bilanço Puanı" min="0" max="1" step="0.1" required>
+                    <input type="number" id="a_debt" placeholder="Borç Puanı" min="0" max="1" step="0.1" required>
+                </div>
+                <div class="grid">
+                    <input type="number" id="a_story" placeholder="Hikaye Puanı" min="0" max="1" step="0.1" required>
+                    <input type="number" id="a_margin" placeholder="İskonto Marjı" min="0" max="1" step="0.1" required>
+                </div>
+                <div class="modal-btns">
+                    <button type="submit" class="btn-primary">Kaydet</button>
+                    <button type="button" class="btn-ghost" onclick="closeModal('analysisModal')">İptal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
