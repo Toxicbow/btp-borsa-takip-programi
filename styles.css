@@ -404,3 +404,87 @@ tr:last-child td { border-bottom: none; }
     font-size: 0.9rem;
     word-break: break-all;
 }
+
+/* Mobile Responsiveness */
+@media screen and (max-width: 768px) {
+    body {
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .app-layout {
+        flex-direction: column;
+        height: auto;
+    }
+
+    .sidebar {
+        width: 100%;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+        padding: 1.5rem;
+    }
+
+    .sidebar-scroll {
+        overflow-y: visible;
+        margin-bottom: 0;
+    }
+
+    .content {
+        padding: 1rem;
+        overflow-y: visible;
+    }
+
+    .main-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .main-header h2 {
+        font-size: 1.5rem;
+    }
+
+    .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        width: 100%;
+    }
+
+    .btn-action {
+        margin-left: 0;
+        flex: 1;
+        text-align: center;
+        font-size: 0.85rem;
+        padding: 10px;
+    }
+
+    .charts-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .modal-content {
+        width: 95%;
+        padding: 1.5rem;
+    }
+
+    .table-wrapper {
+        padding: 0.5rem;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    th, td {
+        padding: 0.8rem;
+        font-size: 0.8rem;
+    }
+
+    .brand {
+        margin-bottom: 1.5rem;
+    }
+    
+    .summary-cards {
+        margin-bottom: 1.5rem;
+    }
+}
