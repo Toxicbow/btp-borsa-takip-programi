@@ -268,69 +268,78 @@ window.openEditAnalysis = (id) => {
 
 window.closeModal = (id) => document.getElementById(id).classList.remove('show');
 
-// --- Local Backup & Restore ---
-document.getElementById('backupBtn')?.addEventListener('click', () => {
-    try {
-        const data = JSON.stringify({ portfolio, analysis }, null, 2);
-        const blob = new Blob([data], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        const date = new Date().toISOString().split('T')[0];
-        a.download = `BTP_Yedek_${date}.json`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+// --- Cloud Sync & Restore ---
+document.getElementById('backupBtn')?.addEventListener('click', async () => {
+    const data = { portfolio, analysis };
+    const btn = document.getElementById('backupBtn');
 
-        const btn = document.getElementById('backupBtn');
-        const originalHtml = btn.innerHTML;
-        btn.innerHTML = '<i class="fa-solid fa-check"></i> İNDİRİLDİ';
-        setTimeout(() => { btn.innerHTML = originalHtml; }, 2000);
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Buluta Yükleniyor...';
+
+    try {
+        const res = await fetch('https://bytebin.lucko.me/post', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json; charset=utf-8' },
+            body: JSON.stringify(data)
+        });
+
+        if (!res.ok) throw new Error("API Hatası");
+
+        const result = await res.json();
+
+        if (result.key) {
+            document.getElementById('walletIdDisplay').textContent = result.key;
+            document.getElementById('walletBox').style.display = 'block';
+            btn.innerHTML = '<i class="fa-solid fa-check"></i> BAŞARILI';
+            setTimeout(() => {
+                btn.innerHTML = '<i class="fa-solid fa-plus-circle"></i> BULUTA YEDEKLE';
+            }, 3000);
+        } else {
+            throw new Error("Kod alınamadı");
+        }
     } catch (e) {
-        alert("Yedekleme dosyası oluşturulurken bir hata oluştu.");
+        alert("Bulut bağlantısında hata oluştu. Lütfen tekrar deneyin.");
+        btn.innerHTML = '<i class="fa-solid fa-plus-circle"></i> BULUTA YEDEKLE';
     }
 });
 
-document.getElementById('restoreBtn')?.addEventListener('click', () => {
-    const fileInput = document.getElementById('restoreFileInput');
-    const file = fileInput.files[0];
+document.getElementById('restoreBtn')?.addEventListener('click', async () => {
+    const code = document.getElementById('restoreInput').value.trim();
 
-    if (!file) {
-        alert("Lütfen önce bilgisayarınızdan veya telefonunuzdan bir .json yedek dosyası seçin.");
+    if (!code) {
+        alert("Lütfen sistemin verdiği kısa kodu girin.");
         return;
     }
 
     const btn = document.getElementById('restoreBtn');
-    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> YÜKLENİYOR...';
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> İndiriliyor...';
 
-    const reader = new FileReader();
-    reader.onload = (e) => {
-        try {
-            const result = JSON.parse(e.target.result);
-            if (result && typeof result === 'object') {
-                portfolio = result.portfolio || [];
-                analysis = result.analysis || [];
-                saveToLocalStorage();
-                renderTable();
-                renderAnalysisTable();
-                closeModal('syncModal');
-                alert("Veriler dosyadan başarıyla yüklendi.");
-            } else {
-                alert("Dosya içeriği geçerli bir BTP yedeği değil.");
-            }
-        } catch (err) {
-            alert("Dosya okunamadı veya bozuk formatta.");
-        } finally {
-            btn.innerHTML = '<i class="fa-solid fa-file-arrow-up" style="margin-right: 8px;"></i>VERİLERİ YÜKLE';
-            fileInput.value = ""; // Reset input
+    try {
+        const res = await fetch(`https://bytebin.lucko.me/${code}`);
+        if (!res.ok) throw new Error("Bulunamadı");
+
+        const result = await res.json();
+
+        if (result && typeof result === 'object') {
+            portfolio = result.portfolio || [];
+            analysis = result.analysis || [];
+            saveToLocalStorage();
+            renderTable();
+            renderAnalysisTable();
+            closeModal('syncModal');
+            alert("Veriler buluttan başarıyla yüklendi.");
+        } else {
+            alert("Cüzdan verisi geçerli değil.");
         }
-    };
-    reader.onerror = () => {
-        alert("Dosya okunurken bir hata oluştu.");
-        btn.innerHTML = '<i class="fa-solid fa-file-arrow-up" style="margin-right: 8px;"></i>VERİLERİ YÜKLE';
-    };
-    reader.readAsText(file);
+    } catch (err) {
+        alert("Bağlantı hatası veya geçersiz kod. Lütfen kodu doğru girdiğinizden emin olun.");
+    } finally {
+        btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-down" style="margin-right: 8px;"></i>CÜZDANI İNDİR';
+    }
+});
+
+document.getElementById('copyBtn')?.addEventListener('click', () => {
+    navigator.clipboard.writeText(document.getElementById('walletIdDisplay').textContent);
+    alert("Kısa kod kopyalandı.");
 });
 
 // --- Events ---
