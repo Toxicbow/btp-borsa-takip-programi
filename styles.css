@@ -158,14 +158,15 @@ form input:focus { border-color: var(--gold); }
 
 /* Portfolio Insights */
 .portfolio-insights {
-    margin: 2rem 0;
-    display: flex;
-    flex-direction: column;
-    gap: 1.2rem;
-    padding: 1.5rem;
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid var(--border);
-    border-radius: 16px;
+    margin: 2rem 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 1.2rem !important;
+    padding: 1.5rem !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid var(--gold) !important;
+    border-radius: 16px !important;
+    min-height: 50px !important;
 }
 
 .insight-group label {

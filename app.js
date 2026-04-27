@@ -60,7 +60,7 @@ const loadFromLocalStorage = () => {
 // --- Portfolio Core ---
 const calculateTotals = () => {
     let cost = 0, current = 0;
-    portfolio.forEach(s => { cost += (s.lots * s.avgCost); current += (s.lots * s.currentPrice); });
+    portfolio.forEach(s => { cost += (parseFloat(s.lots) * parseFloat(s.avgCost)); current += (parseFloat(s.lots) * parseFloat(s.currentPrice)); });
     const profit = current - cost;
     const percent = cost > 0 ? (profit / cost) * 100 : 0;
 
@@ -76,44 +76,48 @@ const calculateTotals = () => {
     }
 
     // Insights
-    const gainerListEl = document.getElementById('gainerList');
-    const loserListEl = document.getElementById('loserList');
+    try {
+        const gainerListEl = document.getElementById('gainerList');
+        const loserListEl = document.getElementById('loserList');
 
-    if (gainerListEl && loserListEl) {
-        gainerListEl.innerHTML = '';
-        loserListEl.innerHTML = '';
+        if (gainerListEl && loserListEl) {
+            gainerListEl.innerHTML = '';
+            loserListEl.innerHTML = '';
 
-        if (portfolio.length > 0) {
-            const calculated = portfolio.map(s => {
-                const p = ((s.lots * s.currentPrice) - (s.lots * s.avgCost));
-                const per = (s.lots * s.avgCost) > 0 ? (p / (s.lots * s.avgCost) * 100) : 0;
-                return { ...s, per };
-            });
+            if (portfolio && portfolio.length > 0) {
+                const calculated = portfolio.map(s => {
+                    const c = (parseFloat(s.lots) * parseFloat(s.avgCost));
+                    const v = (parseFloat(s.lots) * parseFloat(s.currentPrice));
+                    const p = v - c;
+                    const per = c > 0 ? (p / c * 100) : 0;
+                    return { ...s, per };
+                });
 
-            const gainers = calculated.filter(s => s.per >= 0).sort((a, b) => b.per - a.per);
-            const losers = calculated.filter(s => s.per < 0).sort((a, b) => a.per - b.per);
+                const gainers = calculated.filter(s => s.per >= 0).sort((a, b) => b.per - a.per);
+                const losers = calculated.filter(s => s.per < 0).sort((a, b) => a.per - b.per);
 
-            gainers.forEach(s => {
-                const row = document.createElement('div');
-                row.className = 'insight-row up';
-                row.innerHTML = `<span>${s.ticker.toUpperCase()}</span> <span>%${s.per.toFixed(2)}</span>`;
-                gainerListEl.appendChild(row);
-            });
+                gainers.forEach(s => {
+                    const row = document.createElement('div');
+                    row.className = 'insight-row up';
+                    row.innerHTML = `<span>${s.ticker.toUpperCase()}</span> <span>%${s.per.toFixed(2)}</span>`;
+                    gainerListEl.appendChild(row);
+                });
 
-            losers.forEach(s => {
-                const row = document.createElement('div');
-                row.className = 'insight-row down';
-                row.innerHTML = `<span>${s.ticker.toUpperCase()}</span> <span>%${s.per.toFixed(2)}</span>`;
-                loserListEl.appendChild(row);
-            });
+                losers.forEach(s => {
+                    const row = document.createElement('div');
+                    row.className = 'insight-row down';
+                    row.innerHTML = `<span>${s.ticker.toUpperCase()}</span> <span>%${s.per.toFixed(2)}</span>`;
+                    loserListEl.appendChild(row);
+                });
 
-            if (gainers.length === 0) gainerListEl.innerHTML = '<div style="font-size:0.8rem; color:var(--text-muted);">Yükselen yok.</div>';
-            if (losers.length === 0) loserListEl.innerHTML = '<div style="font-size:0.8rem; color:var(--text-muted);">Düşen yok.</div>';
-        } else {
-            gainerListEl.innerHTML = '<div style="font-size:0.8rem; color:var(--text-muted);">Veri yok.</div>';
-            loserListEl.innerHTML = '<div style="font-size:0.8rem; color:var(--text-muted);">Veri yok.</div>';
+                if (gainers.length === 0) gainerListEl.innerHTML = '<div style="font-size:0.8rem; color:var(--text-muted); padding:5px;">Yükselen yok.</div>';
+                if (losers.length === 0) loserListEl.innerHTML = '<div style="font-size:0.8rem; color:var(--text-muted); padding:5px;">Düşen yok.</div>';
+            } else {
+                gainerListEl.innerHTML = '<div style="font-size:0.8rem; color:var(--text-muted); padding:5px;">Veri yok.</div>';
+                loserListEl.innerHTML = '<div style="font-size:0.8rem; color:var(--text-muted); padding:5px;">Veri yok.</div>';
+            }
         }
-    }
+    } catch (e) { console.error("Insights Error:", e); }
 };
 
 const renderTable = () => {
@@ -129,9 +133,9 @@ const renderTable = () => {
     if (portfolioTable) portfolioTable.style.display = 'table';
 
     portfolio.forEach((s) => {
-        const val = s.lots * s.currentPrice;
-        const prof = val - (s.lots * s.avgCost);
-        const pPer = (s.lots * s.avgCost) > 0 ? (prof / (s.lots * s.avgCost) * 100) : 0;
+        const val = parseFloat(s.lots) * parseFloat(s.currentPrice);
+        const prof = val - (parseFloat(s.lots) * parseFloat(s.avgCost));
+        const pPer = (parseFloat(s.lots) * parseFloat(s.avgCost)) > 0 ? (prof / (parseFloat(s.lots) * parseFloat(s.avgCost)) * 100) : 0;
         const row = document.createElement('tr');
         row.innerHTML = `
             <td><strong style="color:var(--gold);">${s.ticker.toUpperCase()}</strong></td>
@@ -164,8 +168,8 @@ const renderAnalysisTable = () => {
     if (analysisTable) analysisTable.style.display = 'table';
 
     analysis.forEach(a => {
-        const pot = ((a.targetPrice / a.currentPrice) - 1) * 100;
-        const isc = (1 - (a.currentPrice / a.targetPrice)) * 100;
+        const pot = ((parseFloat(a.targetPrice) / parseFloat(a.currentPrice)) - 1) * 100;
+        const isc = (1 - (parseFloat(a.currentPrice) / parseFloat(a.targetPrice))) * 100;
         const totalPuan = (parseFloat(a.balance) + parseFloat(a.debt) + parseFloat(a.story) + parseFloat(a.margin)).toFixed(1);
 
         const row = document.createElement('tr');
@@ -226,8 +230,8 @@ const initCharts = () => {
 const updateCharts = () => {
     if (!distributionChart || !performanceChart) return;
     const labels = portfolio.map(s => s.ticker.toUpperCase());
-    const vals = portfolio.map(s => s.lots * s.currentPrice);
-    const costs = portfolio.map(s => s.lots * s.avgCost);
+    const vals = portfolio.map(s => parseFloat(s.lots) * parseFloat(s.currentPrice));
+    const costs = portfolio.map(s => parseFloat(s.lots) * parseFloat(s.avgCost));
     distributionChart.data.labels = labels; distributionChart.data.datasets[0].data = vals; distributionChart.update();
     performanceChart.data.labels = labels; performanceChart.data.datasets[0].data = costs; performanceChart.data.datasets[1].data = vals; performanceChart.update();
 };
