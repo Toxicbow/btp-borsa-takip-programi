@@ -19,35 +19,37 @@
 <body>
     <div class="app-layout">
         <aside class="sidebar">
-            <div class="brand">
-                <i class="fa-solid fa-chart-line gold-text"></i>
-                <h1>BTP - <span style="font-weight: 300;">Borsa Takip Programı</span></h1>
-            </div>
+            <div class="sidebar-scroll">
+                <div class="brand">
+                    <i class="fa-solid fa-chart-line gold-text"></i>
+                    <h1>BTP - <span style="font-weight: 300;">Borsa Takip Programı</span></h1>
+                </div>
 
-            <div class="summary-cards">
-                <div class="sum-card">
-                    <label>Toplam Değer</label>
-                    <div id="currentValue" class="value">₺0,00</div>
+                <div class="summary-cards">
+                    <div class="sum-card">
+                        <label>Toplam Değer</label>
+                        <div id="currentValue" class="value">₺0,00</div>
+                    </div>
+                    <div class="sum-card">
+                        <label>Toplam Maliyet</label>
+                        <div id="totalCost" class="value">₺0,00</div>
+                    </div>
+                    <div class="sum-card highlight">
+                        <label>Net Kâr / Zarar</label>
+                        <div id="totalProfit" class="value">₺0,00</div>
+                        <span id="totalProfitPercent" class="badge">0%</span>
+                    </div>
                 </div>
-                <div class="sum-card">
-                    <label>Toplam Maliyet</label>
-                    <div id="totalCost" class="value">₺0,00</div>
-                </div>
-                <div class="sum-card highlight">
-                    <label>Net Kâr / Zarar</label>
-                    <div id="totalProfit" class="value">₺0,00</div>
-                    <span id="totalProfitPercent" class="badge">0%</span>
-                </div>
-            </div>
 
-            <div id="portfolioInsights" class="portfolio-insights">
-                <div class="insight-group">
-                    <label><i class="fa-solid fa-arrow-trend-up"></i> Yükselenler</label>
-                    <div id="gainerList" class="insight-list"></div>
-                </div>
-                <div class="insight-group">
-                    <label><i class="fa-solid fa-arrow-trend-down"></i> Düşenler</label>
-                    <div id="loserList" class="insight-list"></div>
+                <div id="portfolioInsights" class="portfolio-insights">
+                    <div class="insight-group">
+                        <label><i class="fa-solid fa-arrow-trend-up"></i> Yükselenler</label>
+                        <div id="gainerList" class="insight-list"></div>
+                    </div>
+                    <div class="insight-group">
+                        <label><i class="fa-solid fa-arrow-trend-down"></i> Düşenler</label>
+                        <div id="loserList" class="insight-list"></div>
+                    </div>
                 </div>
             </div>
 
@@ -173,57 +175,60 @@
         </div>
     </div>
 
+    <!-- Bulut Cüzdanı Modal -->
     <div id="syncModal" class="modal">
-        <div class="modal-content" style="width: 480px; padding: 2.5rem;">
+        <div class="modal-content" style="width: 440px; padding: 2.5rem; border-color: var(--gold);">
             <div style="text-align: center; margin-bottom: 2rem;">
-                <i class="fa-solid fa-cloud gold-text" style="font-size: 2.5rem; margin-bottom: 1rem;"></i>
-                <h3 style="margin-bottom: 0.5rem; font-family: 'Playfair Display', serif;">Bulut Cüzdanı</h3>
-                <p style="font-size: 0.8rem; color: var(--text-muted);">Verilerinizi güvenle yedekleyin veya geri
-                    yükleyin.</p>
+                <div style="width: 60px; height: 60px; background: rgba(212, 175, 55, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
+                    <i class="fa-solid fa-cloud gold-text" style="font-size: 1.8rem;"></i>
+                </div>
+                <h3 style="margin-bottom: 0.5rem; font-family: 'Playfair Display', serif; font-size: 1.8rem;">Bulut Cüzdanı</h3>
+                <p style="font-size: 0.85rem; color: var(--text-muted);">Verilerinizi cihazlar arasında senkronize edin.</p>
             </div>
 
             <div class="sync-section">
-                <h4
-                    style="font-size: 0.85rem; color: var(--gold); margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 1px;">
-                    <i class="fa-solid fa-shield-halved"></i> Verileri Yedekle
+                <h4 style="font-size: 0.75rem; color: var(--gold); margin-bottom: 1.2rem; text-transform: uppercase; letter-spacing: 1.5px; border-bottom: 1px solid var(--border); padding-bottom: 8px;">
+                    <i class="fa-solid fa-upload" style="margin-right: 8px;"></i>Verileri Yedekle
                 </h4>
-                <div class="input-group">
-                    <i class="fa-solid fa-lock"></i>
-                    <input type="password" id="backupPassword" placeholder="Yedekleme Şifresi (Opsiyonel)">
+                <div class="input-group" style="margin-bottom: 1rem;">
+                    <i class="fa-solid fa-fingerprint"></i>
+                    <input type="text" id="customWalletId" placeholder="Özel Cüzdan Kodu (Opsiyonel)" style="height: 45px;">
                 </div>
-                <button id="backupBtn" class="btn-primary" style="margin-top: 0.5rem;">Cüzdan Oluştur</button>
-
-                <div id="walletBox" class="wallet-id-container" style="display:none; margin-top:1.5rem;">
-                    <label>Cüzdan Kimliğiniz:</label>
-                    <div style="display: flex; gap: 10px; align-items: center;">
-                        <code id="walletIdDisplay"></code>
-                        <button id="copyBtn" class="btn-icon" title="Kopyala"><i class="fa-solid fa-copy"></i></button>
+                <button id="backupBtn" class="btn-primary" style="height: 50px; font-size: 1rem; letter-spacing: 1px;">
+                    <i class="fa-solid fa-plus-circle" style="margin-right: 8px;"></i>YEDEKLE
+                </button>
+                
+                <div id="walletBox" class="wallet-id-container" style="display:none; margin-top:1.5rem; background: rgba(0,0,0,0.3); padding: 1.2rem; border-radius: 12px; border: 1px dashed var(--gold);">
+                    <label style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; display: block;">CÜZDAN KODUNUZ:</label>
+                    <div style="display: flex; gap: 10px; align-items: center; justify-content: space-between;">
+                        <code id="walletIdDisplay" style="font-size: 1.1rem; color: var(--gold); font-weight: 700; font-family: monospace;"></code>
+                        <button id="copyBtn" class="btn-icon" style="color: var(--gold); font-size: 1.2rem;"><i class="fa-solid fa-copy"></i></button>
                     </div>
                 </div>
             </div>
 
-            <div style="height: 1px; background: var(--border); margin: 2rem 0;"></div>
+            <div style="margin: 2rem 0; display: flex; align-items: center; gap: 15px;">
+                <div style="flex: 1; height: 1px; background: var(--border);"></div>
+                <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 700;">VEYA</span>
+                <div style="flex: 1; height: 1px; background: var(--border);"></div>
+            </div>
 
             <div class="sync-section">
-                <h4
-                    style="font-size: 0.85rem; color: var(--gold); margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 1px;">
-                    <i class="fa-solid fa-download"></i> Geri Yükle
+                <h4 style="font-size: 0.75rem; color: var(--gold); margin-bottom: 1.2rem; text-transform: uppercase; letter-spacing: 1.5px; border-bottom: 1px solid var(--border); padding-bottom: 8px;">
+                    <i class="fa-solid fa-download" style="margin-right: 8px;"></i>Verileri Geri Yükle
                 </h4>
                 <div class="input-group">
                     <i class="fa-solid fa-key"></i>
-                    <input type="text" id="restoreInput" placeholder="Cüzdan ID">
+                    <input type="text" id="restoreInput" placeholder="Cüzdan Kodunu Girin" style="height: 50px;">
                 </div>
-                <div class="input-group" style="margin-top: 0.8rem;">
-                    <i class="fa-solid fa-lock"></i>
-                    <input type="password" id="restorePassword" placeholder="Şifre">
-                </div>
-                <button id="restoreBtn" class="btn-primary"
-                    style="margin-top: 1rem; background: transparent; border: 1px solid var(--gold); color: var(--gold);">Verileri
-                    İndir</button>
+                <button id="restoreBtn" class="btn-primary" style="margin-top: 1rem; background: transparent; border: 1px solid var(--gold); color: var(--gold); height: 50px;">
+                    <i class="fa-solid fa-cloud-arrow-down" style="margin-right: 8px;"></i>CÜZDANI İNDİR
+                </button>
             </div>
 
-            <button class="btn-ghost" style="margin-top: 2rem; border-color: transparent;"
-                onclick="closeModal('syncModal')">Dashboard'a Dön</button>
+            <button class="btn-ghost" style="margin-top: 2rem; border-color: transparent; color: var(--text-muted); font-size: 0.8rem; width: 100%;" onclick="closeModal('syncModal')">
+                <i class="fa-solid fa-arrow-left" style="margin-right: 8px;"></i>Geri Dön
+            </button>
         </div>
     </div>
 

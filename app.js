@@ -270,37 +270,60 @@ window.closeModal = (id) => document.getElementById(id).classList.remove('show')
 
 // --- Sync & Restore ---
 document.getElementById('backupBtn')?.addEventListener('click', async () => {
-    const pass = document.getElementById('backupPassword').value;
-    const data = pass ? { encrypted: encryptData({ portfolio, analysis }, pass) } : { portfolio, analysis };
+    const customId = document.getElementById('customWalletId').value.trim();
+    const walletId = customId || Math.random().toString(36).substring(2, 8).toUpperCase();
+    const data = { portfolio, analysis };
+    
+    document.getElementById('backupBtn').innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Yükleniyor...';
+    
     try {
-        const res = await fetch('https://api.restful-api.dev/objects', {
+        await fetch('https://api.restful-api.dev/objects', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name: "BTP_Cloud_V2", data })
+            body: JSON.stringify({ name: "BTP_" + walletId, data })
         });
-        const result = await res.json();
-        if (result.id) {
-            document.getElementById('walletIdDisplay').textContent = result.id;
-            document.getElementById('walletBox').style.display = 'block';
-        }
-    } catch (e) { alert("Bulut senkronizasyon hatası!"); }
+        
+        document.getElementById('walletIdDisplay').textContent = walletId;
+        document.getElementById('walletBox').style.display = 'block';
+        document.getElementById('backupBtn').innerHTML = '<i class="fa-solid fa-check"></i> BAŞARILI';
+        setTimeout(() => {
+            document.getElementById('backupBtn').innerHTML = '<i class="fa-solid fa-plus-circle"></i> YEDEKLE';
+        }, 2000);
+    } catch (e) { 
+        alert("Bulut senkronizasyon hatası!");
+        document.getElementById('backupBtn').innerHTML = '<i class="fa-solid fa-plus-circle"></i> YEDEKLE';
+    }
 });
 
 document.getElementById('restoreBtn')?.addEventListener('click', async () => {
-    const code = document.getElementById('restoreInput').value.trim();
-    const pass = document.getElementById('restorePassword').value;
+    const code = document.getElementById('restoreInput').value.trim().toUpperCase();
+    if (!code) { alert("Lütfen cüzdan kodunuzu girin."); return; }
+    
+    document.getElementById('restoreBtn').innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Aranıyor...';
+    
     try {
-        const res = await fetch(`https://api.restful-api.dev/objects/${code}`);
+        const res = await fetch('https://api.restful-api.dev/objects');
         if (!res.ok) throw new Error();
-        const result = await res.json();
-        let decrypted = result.data.encrypted ? decryptData(result.data.encrypted, pass) : result.data;
-        if (decrypted) {
-            portfolio = decrypted.portfolio || [];
-            analysis = decrypted.analysis || [];
-            saveToLocalStorage(); renderTable(); renderAnalysisTable(); closeModal('syncModal');
+        const allObjects = await res.json();
+        
+        const myWallet = allObjects.reverse().find(obj => obj.name === "BTP_" + code);
+        
+        if (myWallet && myWallet.data) {
+            portfolio = myWallet.data.portfolio || [];
+            analysis = myWallet.data.analysis || [];
+            saveToLocalStorage(); 
+            renderTable(); 
+            renderAnalysisTable(); 
+            closeModal('syncModal');
             alert("Veriler başarıyla geri yüklendi.");
-        } else { alert("Hatalı kod veya şifre."); }
-    } catch (e) { alert("Veri bulunamadı."); }
+        } else { 
+            alert("Cüzdan bulunamadı. Lütfen kodu kontrol edin."); 
+        }
+    } catch (e) { 
+        alert("Bağlantı hatası veya veri bulunamadı."); 
+    } finally {
+        document.getElementById('restoreBtn').innerHTML = '<i class="fa-solid fa-cloud-arrow-down"></i> CÜZDANI İNDİR';
+    }
 });
 
 document.getElementById('copyBtn')?.addEventListener('click', () => {
