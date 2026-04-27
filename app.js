@@ -268,67 +268,69 @@ window.openEditAnalysis = (id) => {
 
 window.closeModal = (id) => document.getElementById(id).classList.remove('show');
 
-// --- Sync & Restore ---
-document.getElementById('backupBtn')?.addEventListener('click', async () => {
-    const customId = document.getElementById('customWalletId').value.trim();
-    const walletId = customId || Math.random().toString(36).substring(2, 8).toUpperCase();
-    const data = { portfolio, analysis };
-    
-    document.getElementById('backupBtn').innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Yükleniyor...';
-    
+// --- Local Backup & Restore ---
+document.getElementById('backupBtn')?.addEventListener('click', () => {
     try {
-        await fetch('https://api.restful-api.dev/objects', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name: "BTP_" + walletId, data })
-        });
-        
-        document.getElementById('walletIdDisplay').textContent = walletId;
-        document.getElementById('walletBox').style.display = 'block';
-        document.getElementById('backupBtn').innerHTML = '<i class="fa-solid fa-check"></i> BAŞARILI';
-        setTimeout(() => {
-            document.getElementById('backupBtn').innerHTML = '<i class="fa-solid fa-plus-circle"></i> YEDEKLE';
-        }, 2000);
-    } catch (e) { 
-        alert("Bulut senkronizasyon hatası!");
-        document.getElementById('backupBtn').innerHTML = '<i class="fa-solid fa-plus-circle"></i> YEDEKLE';
+        const data = JSON.stringify({ portfolio, analysis }, null, 2);
+        const blob = new Blob([data], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        const date = new Date().toISOString().split('T')[0];
+        a.download = `BTP_Yedek_${date}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        const btn = document.getElementById('backupBtn');
+        const originalHtml = btn.innerHTML;
+        btn.innerHTML = '<i class="fa-solid fa-check"></i> İNDİRİLDİ';
+        setTimeout(() => { btn.innerHTML = originalHtml; }, 2000);
+    } catch (e) {
+        alert("Yedekleme dosyası oluşturulurken bir hata oluştu.");
     }
 });
 
-document.getElementById('restoreBtn')?.addEventListener('click', async () => {
-    const code = document.getElementById('restoreInput').value.trim().toUpperCase();
-    if (!code) { alert("Lütfen cüzdan kodunuzu girin."); return; }
-    
-    document.getElementById('restoreBtn').innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Aranıyor...';
-    
-    try {
-        const res = await fetch('https://api.restful-api.dev/objects');
-        if (!res.ok) throw new Error();
-        const allObjects = await res.json();
-        
-        const myWallet = allObjects.reverse().find(obj => obj.name === "BTP_" + code);
-        
-        if (myWallet && myWallet.data) {
-            portfolio = myWallet.data.portfolio || [];
-            analysis = myWallet.data.analysis || [];
-            saveToLocalStorage(); 
-            renderTable(); 
-            renderAnalysisTable(); 
-            closeModal('syncModal');
-            alert("Veriler başarıyla geri yüklendi.");
-        } else { 
-            alert("Cüzdan bulunamadı. Lütfen kodu kontrol edin."); 
+document.getElementById('restoreBtn')?.addEventListener('click', () => {
+    const fileInput = document.getElementById('restoreFileInput');
+    const file = fileInput.files[0];
+
+    if (!file) {
+        alert("Lütfen önce bilgisayarınızdan veya telefonunuzdan bir .json yedek dosyası seçin.");
+        return;
+    }
+
+    const btn = document.getElementById('restoreBtn');
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> YÜKLENİYOR...';
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        try {
+            const result = JSON.parse(e.target.result);
+            if (result && typeof result === 'object') {
+                portfolio = result.portfolio || [];
+                analysis = result.analysis || [];
+                saveToLocalStorage();
+                renderTable();
+                renderAnalysisTable();
+                closeModal('syncModal');
+                alert("Veriler dosyadan başarıyla yüklendi.");
+            } else {
+                alert("Dosya içeriği geçerli bir BTP yedeği değil.");
+            }
+        } catch (err) {
+            alert("Dosya okunamadı veya bozuk formatta.");
+        } finally {
+            btn.innerHTML = '<i class="fa-solid fa-file-arrow-up" style="margin-right: 8px;"></i>VERİLERİ YÜKLE';
+            fileInput.value = ""; // Reset input
         }
-    } catch (e) { 
-        alert("Bağlantı hatası veya veri bulunamadı."); 
-    } finally {
-        document.getElementById('restoreBtn').innerHTML = '<i class="fa-solid fa-cloud-arrow-down"></i> CÜZDANI İNDİR';
-    }
-});
-
-document.getElementById('copyBtn')?.addEventListener('click', () => {
-    navigator.clipboard.writeText(document.getElementById('walletIdDisplay').textContent);
-    alert("Kod kopyalandı.");
+    };
+    reader.onerror = () => {
+        alert("Dosya okunurken bir hata oluştu.");
+        btn.innerHTML = '<i class="fa-solid fa-file-arrow-up" style="margin-right: 8px;"></i>VERİLERİ YÜKLE';
+    };
+    reader.readAsText(file);
 });
 
 // --- Events ---

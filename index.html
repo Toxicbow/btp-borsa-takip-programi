@@ -11,7 +11,7 @@
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Playfair+Display:ital,wght@0,700;1,700&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="styles.css?v=1.1.0">
+    <link rel="stylesheet" href="styles.css?v=1.4.0">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 </head>
@@ -175,36 +175,27 @@
         </div>
     </div>
 
-    <!-- Bulut Cüzdanı Modal -->
+    <!-- Yedekleme Modal -->
     <div id="syncModal" class="modal">
         <div class="modal-content" style="width: 440px; padding: 2.5rem; border-color: var(--gold);">
             <div style="text-align: center; margin-bottom: 2rem;">
                 <div style="width: 60px; height: 60px; background: rgba(212, 175, 55, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
-                    <i class="fa-solid fa-cloud gold-text" style="font-size: 1.8rem;"></i>
+                    <i class="fa-solid fa-file-shield gold-text" style="font-size: 1.8rem;"></i>
                 </div>
-                <h3 style="margin-bottom: 0.5rem; font-family: 'Playfair Display', serif; font-size: 1.8rem;">Bulut Cüzdanı</h3>
-                <p style="font-size: 0.85rem; color: var(--text-muted);">Verilerinizi cihazlar arasında senkronize edin.</p>
+                <h3 style="margin-bottom: 0.5rem; font-family: 'Playfair Display', serif; font-size: 1.8rem;">Veri Yedekleme</h3>
+                <p style="font-size: 0.85rem; color: var(--text-muted);">Verilerinizi cihazınıza kaydedin veya geri yükleyin.</p>
             </div>
 
             <div class="sync-section">
                 <h4 style="font-size: 0.75rem; color: var(--gold); margin-bottom: 1.2rem; text-transform: uppercase; letter-spacing: 1.5px; border-bottom: 1px solid var(--border); padding-bottom: 8px;">
-                    <i class="fa-solid fa-upload" style="margin-right: 8px;"></i>Verileri Yedekle
+                    <i class="fa-solid fa-download" style="margin-right: 8px;"></i>Yedeği İndir
                 </h4>
-                <div class="input-group" style="margin-bottom: 1rem;">
-                    <i class="fa-solid fa-fingerprint"></i>
-                    <input type="text" id="customWalletId" placeholder="Özel Cüzdan Kodu (Opsiyonel)" style="height: 45px;">
-                </div>
+                <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 1rem; line-height: 1.4;">
+                    Mevcut portföyünüzü ve analizlerinizi bir dosya olarak bilgisayarınıza veya telefonunuza indirin.
+                </p>
                 <button id="backupBtn" class="btn-primary" style="height: 50px; font-size: 1rem; letter-spacing: 1px;">
-                    <i class="fa-solid fa-plus-circle" style="margin-right: 8px;"></i>YEDEKLE
+                    <i class="fa-solid fa-file-arrow-down" style="margin-right: 8px;"></i>DOSYA OLARAK İNDİR
                 </button>
-                
-                <div id="walletBox" class="wallet-id-container" style="display:none; margin-top:1.5rem; background: rgba(0,0,0,0.3); padding: 1.2rem; border-radius: 12px; border: 1px dashed var(--gold);">
-                    <label style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; display: block;">CÜZDAN KODUNUZ:</label>
-                    <div style="display: flex; gap: 10px; align-items: center; justify-content: space-between;">
-                        <code id="walletIdDisplay" style="font-size: 1.1rem; color: var(--gold); font-weight: 700; font-family: monospace;"></code>
-                        <button id="copyBtn" class="btn-icon" style="color: var(--gold); font-size: 1.2rem;"><i class="fa-solid fa-copy"></i></button>
-                    </div>
-                </div>
             </div>
 
             <div style="margin: 2rem 0; display: flex; align-items: center; gap: 15px;">
@@ -215,14 +206,13 @@
 
             <div class="sync-section">
                 <h4 style="font-size: 0.75rem; color: var(--gold); margin-bottom: 1.2rem; text-transform: uppercase; letter-spacing: 1.5px; border-bottom: 1px solid var(--border); padding-bottom: 8px;">
-                    <i class="fa-solid fa-download" style="margin-right: 8px;"></i>Verileri Geri Yükle
+                    <i class="fa-solid fa-upload" style="margin-right: 8px;"></i>Yedeği Yükle
                 </h4>
-                <div class="input-group">
-                    <i class="fa-solid fa-key"></i>
-                    <input type="text" id="restoreInput" placeholder="Cüzdan Kodunu Girin" style="height: 50px;">
+                <div class="input-group" style="padding: 0; background: transparent; border: none;">
+                    <input type="file" id="restoreFileInput" accept=".json" style="width: 100%; padding: 10px; background: rgba(255,255,255,0.02); border: 1px dashed var(--gold); border-radius: 8px; color: var(--text);">
                 </div>
                 <button id="restoreBtn" class="btn-primary" style="margin-top: 1rem; background: transparent; border: 1px solid var(--gold); color: var(--gold); height: 50px;">
-                    <i class="fa-solid fa-cloud-arrow-down" style="margin-right: 8px;"></i>CÜZDANI İNDİR
+                    <i class="fa-solid fa-file-arrow-up" style="margin-right: 8px;"></i>VERİLERİ YÜKLE
                 </button>
             </div>
 
@@ -265,7 +255,7 @@
         </div>
     </div>
 
-    <script src="app.js?v=1.1.0"></script>
+    <script src="app.js?v=1.4.0"></script>
 </body>
 
 </html>
