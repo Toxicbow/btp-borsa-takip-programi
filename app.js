@@ -202,6 +202,10 @@ const initCharts = () => {
                     mode: 'index',
                     intersect: false,
                 },
+                hover: {
+                    mode: 'index',
+                    intersect: false
+                },
                 plugins: { 
                     legend: { display: false },
                     tooltip: {
@@ -224,7 +228,29 @@ const initCharts = () => {
                     x: { grid: { display: false }, border: { display: false } },
                     y: { grid: { color: 'rgba(255,255,255,0.03)' }, border: { display: false }, ticks: { display: false } }
                 }
-            }
+            },
+            plugins: [{
+                id: 'crosshairLine',
+                afterDraw: (chart) => {
+                    if (chart.tooltip?._active?.length) {
+                        const activePoint = chart.tooltip._active[0];
+                        const ctx = chart.ctx;
+                        const x = activePoint.element.x;
+                        const topY = chart.scales.y.top;
+                        const bottomY = chart.scales.y.bottom;
+
+                        ctx.save();
+                        ctx.beginPath();
+                        ctx.moveTo(x, topY);
+                        ctx.lineTo(x, bottomY);
+                        ctx.lineWidth = 1;
+                        ctx.strokeStyle = 'rgba(212, 175, 55, 0.4)';
+                        ctx.setLineDash([5, 5]);
+                        ctx.stroke();
+                        ctx.restore();
+                    }
+                }
+            }]
         });
     }
 
