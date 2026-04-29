@@ -250,30 +250,15 @@
                         </div>
                     </div>
 
-                    <!-- Custom BIST Market Table (Populated via JS) -->
-                    <div class="dashboard-card" style="margin-top: 1rem;">
-                        <div class="card-header" style="padding: 1.5rem 1.5rem 0 1.5rem;">
-                            <h3 style="margin:0; font-size: 1.1rem; display: flex; align-items: center; gap: 0.5rem;">
-                                <i class="fa-solid fa-chart-line" style="color: var(--accent);"></i>
-                                Canlı Borsa İstanbul Takip
-                            </h3>
-                            <span id="marketStatus" style="font-size: 0.8rem; color: var(--text-muted);">Veriler yükleniyor...</span>
-                        </div>
-                        <div class="table-card" style="background: transparent; box-shadow: none; padding: 1rem;">
-                            <table id="customMarketTable" style="width: 100%; border-collapse: collapse;">
-                                <thead>
-                                    <tr style="text-align: left; border-bottom: 1px solid var(--border);">
-                                        <th style="padding: 1rem 0.5rem; color: var(--text-muted); font-size: 0.85rem;">Enstrüman</th>
-                                        <th style="padding: 1rem 0.5rem; color: var(--text-muted); font-size: 0.85rem;">Son Fiyat</th>
-                                        <th style="padding: 1rem 0.5rem; color: var(--text-muted); font-size: 0.85rem;">Değişim %</th>
-                                        <th style="padding: 1rem 0.5rem; color: var(--text-muted); font-size: 0.85rem;">Grafik</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="marketTableBody">
-                                    <!-- Populated via JS -->
-                                </tbody>
-                            </table>
-                        </div>
+                    <!-- BIST Market Table (Official TV Screener Iframe) -->
+                    <div class="dashboard-card" style="height: 600px; padding:0; overflow: hidden; margin-top: 1rem;">
+                        <iframe 
+                            src="https://s.tradingview.com/embed-widget/screener/?locale=tr#%7B%22width%22%3A%22100%25%22%2C%22height%22%3A600%2C%22defaultColumn%22%3A%22overview%22%2C%22defaultScreen%22%3A%22most_capitalized%22%2C%22market%22%3A%22turkey%22%2C%22showToolbar%22%3Atrue%2C%22colorTheme%22%3A%22dark%22%2C%22isTransparent%22%3Atrue%7D" 
+                            width="100%" 
+                            height="100%" 
+                            frameborder="0" 
+                            style="border:none;">
+                        </iframe>
                     </div>
                 </div>
 

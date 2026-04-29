@@ -491,71 +491,8 @@ const initPeriodButtons = () => {
     });
 };
 
-// --- Market Data (Custom Implementation for BIST) ---
-const fetchBistData = async () => {
-    const statusEl = document.getElementById('marketStatus');
-    if (!statusEl) return;
-
-    try {
-        statusEl.innerText = "Veriler güncelleniyor...";
-        const proxy = "https://api.allorigins.win/get?url=";
-        const symbols = ["XU100.IS", "THYAO.IS", "SASA.IS", "EREGL.IS", "ASELS.IS", "KCHOL.IS", "GARAN.IS", "TUPRS.IS", "SISE.IS", "BIMAS.IS"];
-        const target = encodeURIComponent(`https://query1.finance.yahoo.com/v7/finance/quote?symbols=${symbols.join(',')}`);
-        
-        const res = await fetch(proxy + target);
-        const data = await res.json();
-        const json = JSON.parse(data.contents);
-        
-        if (json.quoteResponse && json.quoteResponse.result) {
-            renderMarketTable(json.quoteResponse.result);
-            statusEl.innerText = `Son Güncelleme: ${new Date().toLocaleTimeString('tr-TR')}`;
-        } else {
-            throw new Error("Invalid response");
-        }
-    } catch (e) {
-        console.error("Market data error:", e);
-        statusEl.innerText = "Bağlantı hatası (15dk gecikmeli veri).";
-    }
-};
-
-const renderMarketTable = (quotes) => {
-    const tbody = document.getElementById('marketTableBody');
-    if (!tbody) return;
-
-    tbody.innerHTML = quotes.map(q => {
-        const price = q.regularMarketPrice || 0;
-        const change = q.regularMarketChangePercent || 0;
-        const isUp = change >= 0;
-        const ticker = q.symbol.split('.')[0];
-        const name = q.shortName || ticker;
-
-        return `
-            <tr style="border-bottom: 1px solid var(--border); transition: background 0.2s;">
-                <td style="padding: 1rem 0.5rem;">
-                    <div style="font-weight: 600; color: var(--text-main);">${ticker}</div>
-                    <div style="font-size: 0.75rem; color: var(--text-muted);">${name}</div>
-                </td>
-                <td style="padding: 1rem 0.5rem; font-family: 'JetBrains Mono', monospace; font-weight: 500;">
-                    ${price.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺
-                </td>
-                <td style="padding: 1rem 0.5rem;">
-                    <span class="badge ${isUp ? 'badge-profit' : 'badge-loss'}" style="padding: 0.4rem 0.6rem;">
-                        ${isUp ? '↑' : '↓'} %${Math.abs(change).toFixed(2)}
-                    </span>
-                </td>
-                <td style="padding: 1rem 0.5rem;">
-                    <div style="width: 60px; height: 30px; background: ${isUp ? 'rgba(0,255,100,0.1)' : 'rgba(255,50,50,0.1)'}; border-radius: 4px; display:flex; align-items:center; justify-content:center;">
-                         <i class="fa-solid fa-chart-area" style="color: ${isUp ? '#00e676' : '#ff5252'}; font-size: 0.8rem;"></i>
-                    </div>
-                </td>
-            </tr>
-        `;
-    }).join('');
-};
-
-// Update initTabs to include market data fetch
-const originalInitTabs = initTabs;
-initTabs = () => {
+// --- Tab Switching ---
+const initTabs = () => {
     const navItems = document.querySelectorAll('.nav-item');
     const dashboardBody = document.querySelector('.dashboard-body');
     const portfolioSection = document.getElementById('portfolioSection');
@@ -564,7 +501,7 @@ initTabs = () => {
 
     navItems.forEach(item => {
         item.addEventListener('click', (e) => {
-            if (item.id === 'openSyncModalBtn') return;
+            if (item.id === 'openSyncModalBtn') return; // Skip settings button
             e.preventDefault();
             
             navItems.forEach(i => i.classList.remove('active'));
@@ -572,6 +509,7 @@ initTabs = () => {
             
             const tab = item.getAttribute('data-tab');
             
+            // Hide all
             dashboardBody.children[0].parentElement.querySelectorAll(':scope > div').forEach(c => {
                 if (c.classList.contains('summary-grid') || c.classList.contains('main-chart-card') || c.classList.contains('bottom-grid')) {
                     c.style.display = tab === 'dashboard' ? '' : 'none';
@@ -580,20 +518,9 @@ initTabs = () => {
             
             if (portfolioSection) portfolioSection.style.display = tab === 'portfolio' ? 'block' : 'none';
             if (analysisSection) analysisSection.style.display = tab === 'analysis' ? 'block' : 'none';
-            if (marketsSection) {
-                marketsSection.style.display = tab === 'markets' ? 'block' : 'none';
-                if (tab === 'markets') fetchBistData();
-            }
+            if (marketsSection) marketsSection.style.display = tab === 'markets' ? 'block' : 'none';
         });
     });
-
-    // Auto refresh markets every 5 mins if active
-    setInterval(() => {
-        const activeTab = document.querySelector('.nav-item.active');
-        if (activeTab && activeTab.getAttribute('data-tab') === 'markets') {
-            fetchBistData();
-        }
-    }, 300000);
 };
 
 // --- Actions ---
