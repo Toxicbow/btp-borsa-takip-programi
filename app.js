@@ -227,13 +227,46 @@ const renderAssetMiniList = () => {
     if (!listEl) return;
     listEl.innerHTML = '';
     
-    // Sort all by total value descending and show up to 6
+    // Sort all by total value descending and show up to 3
     const sorted = [...portfolio].sort((a, b) => {
         const valA = parseFloat(a.lots) * parseFloat(a.currentPrice);
         const valB = parseFloat(b.lots) * parseFloat(b.currentPrice);
         return valB - valA;
-    }).slice(0, 6);
+    });
     
+    const miniItems = sorted.slice(0, 3);
+    
+    miniItems.forEach(s => {
+        const currentVal = parseFloat(s.lots) * parseFloat(s.currentPrice);
+        const prof = (parseFloat(s.currentPrice) - parseFloat(s.avgCost)) / parseFloat(s.avgCost) * 100;
+        const item = document.createElement('div');
+        item.className = 'asset-item';
+        item.innerHTML = `
+            <div class="asset-icon">${s.ticker.substring(0, 2).toUpperCase()}</div>
+            <div class="asset-info">
+                <div class="asset-name">${s.ticker.toUpperCase()}</div>
+                <div class="asset-count">${s.lots} Adet</div>
+            </div>
+            <div class="asset-price-box">
+                <div class="asset-price">${formatCurrency(currentVal)}</div>
+                <div class="asset-change ${prof >= 0 ? 'success' : 'danger'}">${prof >= 0 ? '+' : ''}${prof.toFixed(1)}%</div>
+            </div>
+        `;
+        listEl.appendChild(item);
+    });
+};
+
+window.openAllAssetsModal = () => {
+    const listEl = document.getElementById('allAssetsList');
+    if (!listEl) return;
+    listEl.innerHTML = '';
+
+    const sorted = [...portfolio].sort((a, b) => {
+        const valA = parseFloat(a.lots) * parseFloat(a.currentPrice);
+        const valB = parseFloat(b.lots) * parseFloat(b.currentPrice);
+        return valB - valA;
+    });
+
     sorted.forEach(s => {
         const currentVal = parseFloat(s.lots) * parseFloat(s.currentPrice);
         const prof = (parseFloat(s.currentPrice) - parseFloat(s.avgCost)) / parseFloat(s.avgCost) * 100;
@@ -252,6 +285,8 @@ const renderAssetMiniList = () => {
         `;
         listEl.appendChild(item);
     });
+
+    document.getElementById('allAssetsModal').classList.add('show');
 };
 
 const renderAnalysisTable = () => {

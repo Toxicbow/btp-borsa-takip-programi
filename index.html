@@ -125,6 +125,11 @@
                             <div class="asset-list" id="assetMiniList">
                                 <!-- JS items -->
                             </div>
+                            <div style="text-align: center; margin-top: 10px;">
+                                <button onclick="openAllAssetsModal()" style="background: none; border: none; color: var(--accent); cursor: pointer; font-size: 0.8rem; font-weight: 600; display: flex; align-items: center; gap: 5px; margin: 0 auto;">
+                                    <i class="fa-solid fa-list-ul"></i> Tümünü Gör
+                                </button>
+                            </div>
                         </div>
                         <div class="card-footer">
                             <button id="openAddStockBtn" class="add-btn"><i class="fa-solid fa-plus"></i> Hisse Ekle</button>
@@ -462,6 +467,19 @@
                     <button type="button" class="btn-ghost" onclick="closeModal('analysisModal')">İptal</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- All Assets Modal -->
+    <div id="allAssetsModal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h3 style="margin:0;">Tüm Varlıklarım</h3>
+                <button class="icon-btn" onclick="closeModal('allAssetsModal')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div id="allAssetsList" class="asset-list" style="max-height: 400px; overflow-y: auto; padding-right: 10px;">
+                <!-- Full list -->
+            </div>
         </div>
     </div>
 
