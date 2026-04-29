@@ -479,7 +479,7 @@ const initCharts = () => {
                         fill: false
                     },
                     { 
-                        label: 'Hedeflenen Değer', 
+                        label: 'AI Hedeflenen Değer', 
                         data: [], 
                         borderColor: 'rgba(255,255,255,0.2)', 
                         borderWidth: 2, 
@@ -590,11 +590,18 @@ const calculateProjectionData = () => {
         const lots = parseFloat(p.lots) || 0;
         currentTotal += lots * cPrice;
         
+        // 1. Check AI Original Data (Global AI Analysis)
+        const aiMatch = aiOriginalData.find(a => a.ticker.toUpperCase() === p.ticker.toUpperCase());
+        // 2. Check Manual Analysis
         const ana = analysis.find(a => a.ticker.toUpperCase() === p.ticker.toUpperCase());
-        if (ana) {
+        
+        if (aiMatch) {
+            targetTotal += lots * aiMatch.aiTarget;
+        } else if (ana) {
             targetTotal += lots * (parseFloat(ana.targetPrice) || cPrice);
         } else {
-            targetTotal += lots * cPrice;
+            // Fallback: 15% estimated AI growth if no data
+            targetTotal += lots * (cPrice * 1.15);
         }
     });
     return { currentTotal, targetTotal };
