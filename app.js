@@ -600,31 +600,7 @@ const updateCharts = () => {
     }
 };
 
-const calculateProjectionData = () => {
-    let currentTotal = 0;
-    let targetTotal = 0;
-    
-    portfolio.forEach(p => {
-        const cPrice = parseFloat(p.currentPrice) || 0;
-        const lots = parseFloat(p.lots) || 0;
-        currentTotal += lots * cPrice;
-        
-        // 1. Check AI Data (Global AI Analysis)
-        const aiMatch = aiData.find(a => a.ticker.toUpperCase() === p.ticker.toUpperCase());
-        // 2. Check Manual Analysis
-        const ana = analysis.find(a => a.ticker.toUpperCase() === p.ticker.toUpperCase());
-        
-        if (aiMatch) {
-            targetTotal += lots * aiMatch.aiTarget;
-        } else if (ana) {
-            targetTotal += lots * (parseFloat(ana.targetPrice) || cPrice);
-        } else {
-            // Fallback: 15% estimated AI growth if no data
-            targetTotal += lots * (cPrice * 1.15);
-        }
-    });
-    return { currentTotal, targetTotal };
-};
+
 
 // Period functionality
 const initPeriodButtons = () => {
