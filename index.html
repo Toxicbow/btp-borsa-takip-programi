@@ -206,81 +206,84 @@
                         </table>
                     </div>
                 </div>
-
                 <!-- Markets Section -->
                 <div id="marketsSection" class="tab-content" style="display:none; margin-top: 2rem;">
                     <div class="summary-grid" style="margin-bottom: 2rem;">
-                        <!-- USD/TRY Widget -->
+                        <!-- USD/TRY -->
                         <div class="dashboard-card" style="height: 150px; overflow: hidden; padding:0;">
                             <div class="tradingview-widget-container">
                                 <div class="tradingview-widget-container__widget"></div>
                                 <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
                                 {
                                 "symbol": "FX:USDTRY",
-                                "width": "100%",
-                                "height": "100%",
-                                "locale": "tr",
-                                "dateRange": "12M",
-                                "colorTheme": "dark",
-                                "isTransparent": true,
-                                "autosize": true
+                                "width": "100%", "height": "100%", "locale": "tr",
+                                "dateRange": "1D", "colorTheme": "dark", "isTransparent": true, "autosize": true
                                 }
                                 </script>
                             </div>
                         </div>
-                        <!-- EUR/TRY Widget -->
+                        <!-- EUR/TRY -->
                         <div class="dashboard-card" style="height: 150px; overflow: hidden; padding:0;">
                             <div class="tradingview-widget-container">
                                 <div class="tradingview-widget-container__widget"></div>
                                 <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
                                 {
                                 "symbol": "FX:EURTRY",
-                                "width": "100%",
-                                "height": "100%",
-                                "locale": "tr",
-                                "dateRange": "12M",
-                                "colorTheme": "dark",
-                                "isTransparent": true,
-                                "autosize": true
+                                "width": "100%", "height": "100%", "locale": "tr",
+                                "dateRange": "1D", "colorTheme": "dark", "isTransparent": true, "autosize": true
                                 }
                                 </script>
                             </div>
                         </div>
-                        <!-- Gold Widget -->
+                        <!-- Altın -->
                         <div class="dashboard-card" style="height: 150px; overflow: hidden; padding:0;">
                             <div class="tradingview-widget-container">
                                 <div class="tradingview-widget-container__widget"></div>
                                 <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
                                 {
                                 "symbol": "FX_IDC:XAUUSD",
-                                "width": "100%",
-                                "height": "100%",
-                                "locale": "tr",
-                                "dateRange": "12M",
-                                "colorTheme": "dark",
-                                "isTransparent": true,
-                                "autosize": true
+                                "width": "100%", "height": "100%", "locale": "tr",
+                                "dateRange": "1D", "colorTheme": "dark", "isTransparent": true, "autosize": true
                                 }
                                 </script>
                             </div>
                         </div>
                     </div>
-                    
-                    <!-- BIST Stock Screener -->
+
+                    <!-- BIST Market Overview (Multi-Tab) -->
                     <div class="dashboard-card" style="height: 600px; padding:0;">
                         <div class="tradingview-widget-container">
                             <div class="tradingview-widget-container__widget"></div>
-                            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-screener.js" async>
+                            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-market-overview.js" async>
                             {
+                            "colorTheme": "dark",
+                            "dateRange": "1D",
+                            "showChart": true,
+                            "locale": "tr",
+                            "isTransparent": true,
+                            "showSymbolLogo": true,
                             "width": "100%",
                             "height": "100%",
-                            "defaultColumn": "overview",
-                            "defaultScreen": "most_capitalized",
-                            "market": "turkey",
-                            "showToolbar": true,
-                            "colorTheme": "dark",
-                            "locale": "tr",
-                            "isTransparent": true
+                            "tabs": [
+                                {
+                                "title": "BIST 30",
+                                "symbols": [
+                                    { "s": "BIST:THYAO" }, { "s": "BIST:SASA" }, { "s": "BIST:EREGL" },
+                                    { "s": "BIST:ASELS" }, { "s": "BIST:KCHOL" }, { "s": "BIST:GARAN" },
+                                    { "s": "BIST:TUPRS" }, { "s": "BIST:SISE" }, { "s": "BIST:AKBNK" },
+                                    { "s": "BIST:BIMAS" }, { "s": "BIST:EKGYO" }, { "s": "BIST:ISCTR" }
+                                ]
+                                },
+                                {
+                                "title": "BIST 100",
+                                "symbols": [
+                                    { "s": "BIST:XU100", "d": "BIST 100 Endeks" },
+                                    { "s": "BIST:HEKTS" }, { "s": "BIST:KOZAL" }, { "s": "BIST:PETKM" },
+                                    { "s": "BIST:PGSUS" }, { "s": "BIST:SAHOL" }, { "s": "BIST:TKFEN" },
+                                    { "s": "BIST:TOASO" }, { "s": "BIST:VESTL" }, { "s": "BIST:YKBNK" }
+                                ]
+                                }
+                            ]
                             }
                             </script>
                         </div>
