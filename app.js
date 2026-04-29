@@ -40,46 +40,39 @@ const saveToLocalStorage = () => {
 };
 
 const loadFromLocalStorage = () => {
-    try {
-        const pData = localStorage.getItem('portfolio_premium') || localStorage.getItem('portfolio');
-        if (pData) { 
-            const parsed = JSON.parse(pData);
-            portfolio = Array.isArray(parsed) ? parsed : [];
+    const pData = localStorage.getItem('portfolio_premium') || localStorage.getItem('portfolio');
+    if (pData) { try { portfolio = JSON.parse(pData); } catch (e) { portfolio = []; } }
+
+    const aData = localStorage.getItem('analysis_v1');
+    if (aData) { try { analysis = JSON.parse(aData); } catch (e) { analysis = []; } }
+
+    const hData = localStorage.getItem('history_v1');
+    if (hData) { try { portfolioHistory = JSON.parse(hData); } catch (e) { portfolioHistory = []; } }
+
+    renderTable();
+    renderAnalysisTable();
+    renderAssetMiniList();
+    updateCharts();
+    trackDailyValue();
+};
+
+const calculateProjectionData = () => {
+    let currentTotal = 0;
+    let targetTotal = 0;
+    
+    portfolio.forEach(p => {
+        const cPrice = parseFloat(p.currentPrice) || 0;
+        const lots = parseFloat(p.lots) || 0;
+        currentTotal += lots * cPrice;
+        
+        const ana = analysis.find(a => a.ticker.toUpperCase() === p.ticker.toUpperCase());
+        if (ana) {
+            targetTotal += lots * (parseFloat(ana.targetPrice) || cPrice);
         } else {
-            portfolio = [];
+            targetTotal += lots * cPrice;
         }
-
-        const aData = localStorage.getItem('analysis_v1');
-        if (aData) {
-            const parsed = JSON.parse(aData);
-            analysis = Array.isArray(parsed) ? parsed : [];
-        } else {
-            analysis = [];
-        }
-
-        const hData = localStorage.getItem('history_v1');
-        if (hData) {
-            const parsed = JSON.parse(hData);
-            portfolioHistory = Array.isArray(parsed) ? parsed : [];
-        } else {
-            portfolioHistory = [];
-        }
-
-        console.log("Data loaded successfully:", { portfolio: portfolio.length, analysis: analysis.length });
-
-        trackDailyValue();
-        renderTable();
-        renderAnalysisTable();
-        renderAssetMiniList();
-        updateCharts();
-    } catch (err) {
-        console.error("Critical error during data load:", err);
-        // Emergency fallbacks
-        if (!portfolio) portfolio = [];
-        if (!analysis) analysis = [];
-        if (!portfolioHistory) portfolioHistory = [];
-        renderTable();
-    }
+    });
+    return { currentTotal, targetTotal };
 };
 
 const trackDailyValue = () => {
