@@ -118,21 +118,26 @@ const renderAssetMiniList = () => {
     if (!listEl) return;
     listEl.innerHTML = '';
     
-    // Take top 3-4 assets
-    const sorted = [...portfolio].sort((a, b) => (b.lots * b.currentPrice) - (a.lots * a.currentPrice)).slice(0, 4);
+    // Sort all by total value descending and show up to 6
+    const sorted = [...portfolio].sort((a, b) => {
+        const valA = parseFloat(a.lots) * parseFloat(a.currentPrice);
+        const valB = parseFloat(b.lots) * parseFloat(b.currentPrice);
+        return valB - valA;
+    }).slice(0, 6);
     
     sorted.forEach(s => {
-        const prof = (s.currentPrice - s.avgCost) / s.avgCost * 100;
+        const currentVal = parseFloat(s.lots) * parseFloat(s.currentPrice);
+        const prof = (parseFloat(s.currentPrice) - parseFloat(s.avgCost)) / parseFloat(s.avgCost) * 100;
         const item = document.createElement('div');
         item.className = 'asset-item';
         item.innerHTML = `
-            <div class="asset-icon">${s.ticker.substring(0, 2)}</div>
+            <div class="asset-icon">${s.ticker.substring(0, 2).toUpperCase()}</div>
             <div class="asset-info">
-                <div class="asset-name">${s.ticker}</div>
+                <div class="asset-name">${s.ticker.toUpperCase()}</div>
                 <div class="asset-count">${s.lots} Adet</div>
             </div>
             <div class="asset-price-box">
-                <div class="asset-price">${formatCurrency(s.currentPrice)}</div>
+                <div class="asset-price">${formatCurrency(currentVal)}</div>
                 <div class="asset-change ${prof >= 0 ? 'success' : 'danger'}">${prof >= 0 ? '+' : ''}${prof.toFixed(1)}%</div>
             </div>
         `;
@@ -329,8 +334,9 @@ const initCharts = () => {
 
 const updateCharts = () => {
     if (distributionChart) {
-        distributionChart.data.labels = portfolio.map(s => s.ticker);
-        distributionChart.data.datasets[0].data = portfolio.map(s => s.lots * s.currentPrice);
+        const sorted = [...portfolio].sort((a, b) => (parseFloat(b.lots) * parseFloat(b.currentPrice)) - (parseFloat(a.lots) * parseFloat(a.currentPrice)));
+        distributionChart.data.labels = sorted.map(s => s.ticker.toUpperCase());
+        distributionChart.data.datasets[0].data = sorted.map(s => parseFloat(s.lots) * parseFloat(s.currentPrice));
         distributionChart.update();
     }
     
