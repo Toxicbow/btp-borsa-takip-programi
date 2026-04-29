@@ -493,8 +493,7 @@ body {
 }
 
 .dot.portfoy { background: var(--accent); }
-.dot.bist { background: #64748b; }
-.dot.altin { background: var(--warning); }
+.dot.target { background: rgba(255,255,255,0.4); border: 1px dashed rgba(255,255,255,0.6); }
 
 /* Table Section */
 .table-card {
