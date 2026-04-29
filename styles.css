@@ -660,6 +660,66 @@ form input:focus { border-color: var(--accent); }
     .main-chart-card { padding: 1.5rem; }
 }
 
+/* Spinner */
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(212, 175, 55, 0.1);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Pagination */
+.pagination {
+    display: flex;
+    gap: 8px;
+}
+
+.page-btn {
+    background: var(--glass);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.page-btn.active {
+    background: var(--accent);
+    color: black;
+    border-color: var(--accent);
+}
+
+.page-btn:hover:not(.active) {
+    border-color: var(--accent);
+    color: var(--text-primary);
+}
+
+/* AI Badges */
+.badge-vade {
+    font-size: 0.7rem;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.vade-kisa { background: rgba(0, 200, 83, 0.1); color: #00c853; }
+.vade-orta { background: rgba(255, 171, 0, 0.1); color: #ffab00; }
+.vade-uzun { background: rgba(33, 150, 243, 0.1); color: #2196f3; }
+
+.signal-text {
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
 /* Mobile Nav */
 .mobile-nav {
     display: none;

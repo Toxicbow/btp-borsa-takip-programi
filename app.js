@@ -491,77 +491,159 @@ const initPeriodButtons = () => {
     });
 };
 
-// --- Watchlist / Consensus Data ---
-let consensusData = [
-    { ticker: "THYAO", institution: "İş Yatırım", target: 450.00, recommendation: "AL", current: 315.75, date: "24.04.2026" },
-    { ticker: "EREGL", institution: "Garanti BBVA", target: 65.50, recommendation: "AL", current: 48.20, date: "20.04.2026" },
-    { ticker: "SASA", institution: "Ak Yatırım", target: 45.00, recommendation: "TUT", current: 38.40, date: "15.04.2026" },
-    { ticker: "ASELS", institution: "Deniz Yatırım", target: 82.00, recommendation: "AL", current: 64.10, date: "18.04.2026" },
-    { ticker: "KCHOL", institution: "Yapı Kredi", target: 285.00, recommendation: "AL", current: 202.40, date: "22.04.2026" },
-    { ticker: "TUPRS", institution: "OYAK Yatırım", target: 215.00, recommendation: "AL", current: 169.50, date: "10.04.2026" },
-    { ticker: "SISE", institution: "HSBC", target: 68.00, recommendation: "AL", current: 48.90, date: "12.04.2026" },
-    { ticker: "BIMAS", institution: "İş Yatırım", target: 610.00, recommendation: "AL", current: 433.80, date: "25.04.2026" },
-    { ticker: "AKBNK", institution: "Garanti BBVA", target: 92.00, recommendation: "AL", current: 75.95, date: "21.04.2026" },
-    { ticker: "ISCTR", institution: "Ak Yatırım", target: 18.50, recommendation: "AL", current: 12.85, date: "19.04.2026" }
-];
+// --- AI Analysis State ---
+let aiData = [];
+let aiFilteredData = [];
+let aiCurrentPage = 1;
+const aiItemsPerPage = 12;
 
-const fetchWatchlistPrices = async () => {
+const fetchAIData = async () => {
+    const overlay = document.getElementById('aiLoadingOverlay');
+    if (overlay) overlay.style.display = 'flex';
+
     try {
-        const symbols = consensusData.map(d => `BIST:${d.ticker}`);
+        // Fetch BIST 500 data (using most active and top market cap as proxy for BIST 500)
         const response = await fetch('https://scanner.tradingview.com/turkey/scan', {
             method: 'POST',
             body: JSON.stringify({
-                "symbols": { "tickers": symbols },
-                "columns": ["close"]
+                "filter": [
+                    { "left": "name", "operation": "nempty" }
+                ],
+                "options": { "lang": "tr" },
+                "markets": ["turkey"],
+                "symbols": { "query": { "types": ["stock"] }, "tickers": [] },
+                "columns": [
+                    "base_currency_logoid", "name", "description", "close", "high", "low", 
+                    "change", "volume", "RSI", "EMA10", "EMA20", "Volatility.D", "average_volume_10d_calc"
+                ],
+                "sort": { "sortBy": "market_cap_basic", "sortOrder": "desc" },
+                "range": [0, 499] // Fetch up to 500 stocks
             })
         });
+
         const result = await response.json();
         if (result.data) {
-            result.data.forEach(item => {
-                const ticker = item.s.split(':')[1];
-                const price = item.d[0];
-                const target = consensusData.find(d => d.ticker === ticker);
-                if (target) target.current = price;
-            });
-            renderWatchlistTable();
+            aiData = result.data.map(item => calculateAIInsights(item));
+            aiFilteredData = [...aiData];
+            renderAITable();
         }
     } catch (e) {
-        console.warn("Canlı fiyat çekilemedi, sabit veriler gösteriliyor.");
-        renderWatchlistTable();
+        console.error("AI Data fetch error", e);
+    } finally {
+        if (overlay) overlay.style.display = 'none';
     }
 };
 
-const renderWatchlistTable = () => {
-    const tbody = document.getElementById('watchlistTableBody');
+const calculateAIInsights = (raw) => {
+    const d = raw.d;
+    const ticker = raw.s.split(':')[1];
+    const name = d[2];
+    const close = d[3];
+    const high = d[4];
+    const low = d[5];
+    const change = d[6];
+    const rsi = d[8] || 50;
+    const ema10 = d[9] || close;
+    const ema20 = d[10] || close;
+    const vola = d[11] || 2;
+
+    // AI Algoritması: Teknik Skor ve Hedef Fiyat Belirleme
+    let techScore = 0;
+    if (rsi < 40) techScore += 2;
+    if (rsi > 70) techScore -= 1;
+    if (close > ema10) techScore += 1.5;
+    if (ema10 > ema20) techScore += 1;
+    
+    const sentiment = techScore > 2 ? 'GÜÇLÜ AL' : (techScore > 0 ? 'AL' : (techScore < -1 ? 'SAT' : 'TUT'));
+    
+    // Tahmini Hedef (Basit bir volatilite + trend projeksiyonu)
+    const multiplier = 1 + (Math.abs(techScore) * 0.05) + (vola / 50);
+    const aiTarget = close * multiplier;
+    const potential = ((aiTarget / close) - 1) * 100;
+
+    // Vade Öngörüsü
+    let vade = 'ORTA';
+    if (vola > 4) vade = 'KISA';
+    else if (vola < 1.5) vade = 'UZUN';
+
+    return {
+        ticker, name, close, change, rsi, techScore, sentiment, aiTarget, potential, vade
+    };
+};
+
+const renderAITable = () => {
+    const tbody = document.getElementById('aiTableBody');
+    const totalCountEl = document.getElementById('aiTotalCount');
     if (!tbody) return;
 
-    tbody.innerHTML = consensusData.map(item => {
-        const potential = ((item.target / item.current) - 1) * 100;
-        const isHighPotential = potential > 30;
+    totalCountEl.textContent = aiFilteredData.length;
 
-        return `
-            <tr>
-                <td style="padding: 1.2rem 1rem;">
-                    <div style="font-weight: 700; color: var(--text-primary); font-size: 1rem;">${item.ticker}</div>
-                    <div style="font-size: 0.7rem; color: var(--text-muted);">${formatCurrency(item.current)}</div>
-                </td>
-                <td style="color: var(--text-muted); font-size: 0.9rem;">${item.institution}</td>
-                <td style="font-family: 'JetBrains Mono', monospace; font-weight: 600;">${item.target.toFixed(2)} ₺</td>
-                <td>
-                    <span class="badge ${isHighPotential ? 'badge-profit' : ''}" style="background: ${isHighPotential ? 'rgba(0, 230, 118, 0.15)' : 'rgba(255,255,255,0.05)'}; color: ${isHighPotential ? '#00e676' : 'var(--text-muted)'}; padding: 0.5rem 0.8rem; border-radius: 6px; font-weight: 700;">
-                        +%${potential.toFixed(1)}
-                    </span>
-                </td>
-                <td style="color: var(--text-muted); font-size: 0.85rem;">${item.date}</td>
-                <td>
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <div style="width: 8px; height: 8px; border-radius: 50%; background: ${item.recommendation === 'AL' ? '#00e676' : '#ffab00'};"></div>
-                        <span style="font-weight: 600; font-size: 0.85rem; color: ${item.recommendation === 'AL' ? '#00e676' : '#ffab00'}">${item.recommendation}</span>
+    const start = (aiCurrentPage - 1) * aiItemsPerPage;
+    const end = start + aiItemsPerPage;
+    const pageItems = aiFilteredData.slice(start, end);
+
+    tbody.innerHTML = pageItems.map(item => `
+        <tr>
+            <td style="padding: 1.2rem 1rem;">
+                <div style="font-weight: 700; color: var(--text-primary); font-size: 1rem;">${item.ticker}</div>
+                <div style="font-size: 0.7rem; color: var(--text-muted);">${item.name.substring(0, 20)}</div>
+            </td>
+            <td>
+                <div class="signal-text" style="color: ${item.techScore > 0 ? 'var(--success)' : (item.techScore < 0 ? 'var(--danger)' : 'var(--warning)')}">
+                    ${item.sentiment}
+                </div>
+                <div style="font-size: 0.7rem; color: var(--text-muted);">RSI: ${item.rsi.toFixed(1)}</div>
+            </td>
+            <td style="font-family: 'JetBrains Mono', monospace; font-weight: 600;">
+                ${item.aiTarget.toFixed(2)} ₺
+            </td>
+            <td>
+                <span class="badge badge-profit" style="background: rgba(0, 230, 118, 0.1); color: #00e676; padding: 4px 8px; border-radius: 4px; font-weight: 700;">
+                    +%${item.potential.toFixed(1)}
+                </span>
+            </td>
+            <td>
+                <span class="badge-vade vade-${item.vade.toLowerCase()}">${item.vade} VADE</span>
+            </td>
+            <td>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <div style="flex: 1; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden;">
+                        <div style="width: ${(item.techScore + 2) * 20}%; height: 100%; background: var(--accent);"></div>
                     </div>
-                </td>
-            </tr>
-        `;
-    }).join('');
+                    <span style="font-size: 0.75rem; font-weight: 700;">${(item.techScore + 2).toFixed(1)}</span>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+
+    renderAIPagination();
+};
+
+const renderAIPagination = () => {
+    const container = document.getElementById('aiPagination');
+    if (!container) return;
+
+    const totalPages = Math.ceil(aiFilteredData.length / aiItemsPerPage);
+    let html = '';
+
+    // Show only 5 pages around current
+    const startPage = Math.max(1, aiCurrentPage - 2);
+    const endPage = Math.min(totalPages, startPage + 4);
+
+    if (aiCurrentPage > 1) html += `<button class="page-btn" onclick="setAIPage(${aiCurrentPage - 1})"><i class="fa-solid fa-chevron-left"></i></button>`;
+    
+    for (let i = startPage; i <= endPage; i++) {
+        html += `<button class="page-btn ${i === aiCurrentPage ? 'active' : ''}" onclick="setAIPage(${i})">${i}</button>`;
+    }
+
+    if (aiCurrentPage < totalPages) html += `<button class="page-btn" onclick="setAIPage(${aiCurrentPage + 1})"><i class="fa-solid fa-chevron-right"></i></button>`;
+
+    container.innerHTML = html;
+};
+
+window.setAIPage = (p) => {
+    aiCurrentPage = p;
+    renderAITable();
 };
 
 // --- Tab Switching ---
@@ -595,7 +677,7 @@ const initTabs = () => {
             if (marketsSection) marketsSection.style.display = tab === 'markets' ? 'block' : 'none';
             if (followSection) {
                 followSection.style.display = tab === 'follow' ? 'block' : 'none';
-                if (tab === 'follow') fetchWatchlistPrices();
+                if (tab === 'follow') fetchAIData();
             }
         });
     });
@@ -666,8 +748,15 @@ document.addEventListener('DOMContentLoaded', () => {
     initTabs();
     loadFromLocalStorage();
     initPeriodButtons();
-    fetchWatchlistPrices();
+    fetchAIData();
     
+    document.getElementById('aiSearchInput')?.addEventListener('input', (e) => {
+        const q = e.target.value.toUpperCase();
+        aiFilteredData = aiData.filter(d => d.ticker.includes(q) || d.name.toUpperCase().includes(q));
+        aiCurrentPage = 1;
+        renderAITable();
+    });
+
     // Update update time
     document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString('tr-TR');
 
