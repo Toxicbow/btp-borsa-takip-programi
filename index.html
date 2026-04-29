@@ -250,27 +250,31 @@
                         </div>
                     </div>
 
-                    <!-- BIST Tracking Center (Modern Tabbed Layout) -->
+                    <!-- BIST Tracking Center (Simplified Layout) -->
                     <div class="dashboard-card" style="margin-top: 1rem; padding: 0; overflow: hidden;">
-                        <div class="card-header" style="padding: 1.5rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                        <div class="card-header" style="padding: 1.5rem; border-bottom: 1px solid var(--border);">
                             <div style="display: flex; align-items: center; gap: 0.75rem;">
                                 <div style="background: var(--accent); width: 10px; height: 10px; border-radius: 50%;"></div>
                                 <h3 style="margin:0; font-size: 1.1rem;">BIST Takip Merkezi</h3>
                             </div>
-                            <div class="market-tabs" style="display: flex; gap: 0.5rem; background: rgba(255,255,255,0.05); padding: 0.3rem; border-radius: 8px;">
-                                <button class="market-tab-btn active" onclick="switchMarketTab('bist30')" style="padding: 0.5rem 1.2rem; border: none; background: none; color: var(--text-muted); cursor: pointer; border-radius: 6px; font-weight: 500; transition: all 0.2s;">BIST 30</button>
-                                <button class="market-tab-btn" onclick="switchMarketTab('bist100')" style="padding: 0.5rem 1.2rem; border: none; background: none; color: var(--text-muted); cursor: pointer; border-radius: 6px; font-weight: 500; transition: all 0.2s;">BIST 100</button>
-                                <button class="market-tab-btn" onclick="switchMarketTab('bistAll')" style="padding: 0.5rem 1.2rem; border: none; background: none; color: var(--text-muted); cursor: pointer; border-radius: 6px; font-weight: 500; transition: all 0.2s;">Tüm BIST</button>
-                            </div>
                         </div>
 
-                        <div id="marketTabContent" style="height: 600px; position: relative; background: #121212;">
-                            <div id="marketWidgetContainer" style="height: 100%; width: 100%;">
-                                <!-- Dynamically loaded via app.js -->
-                                <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: var(--text-muted);">
-                                    <i class="fa-solid fa-spinner fa-spin" style="margin-right: 0.5rem;"></i>
-                                    Piyasa verileri hazırlanıyor...
-                                </div>
+                        <div style="height: 600px; position: relative; background: #121212;">
+                            <div class="tradingview-widget-container" style="height: 100%; width: 100%;">
+                                <div class="tradingview-widget-container__widget"></div>
+                                <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-screener.js" async>
+                                {
+                                "width": "100%",
+                                "height": "100%",
+                                "defaultColumn": "overview",
+                                "defaultScreen": "most_capitalized",
+                                "market": "turkey",
+                                "showToolbar": true,
+                                "colorTheme": "dark",
+                                "locale": "tr",
+                                "isTransparent": true
+                                }
+                                </script>
                             </div>
                         </div>
                     </div>

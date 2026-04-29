@@ -491,94 +491,6 @@ const initPeriodButtons = () => {
     });
 };
 
-// --- Market Dynamic Widget Loader ---
-window.loadMarketWidget = (type) => {
-    const container = document.getElementById('marketWidgetContainer');
-    if (!container) return;
-    
-    // Clear existing widget
-    container.innerHTML = '<div class="tradingview-widget-container__widget"></div>';
-    
-    const script = document.createElement('script');
-    script.type = 'text/javascript';
-    script.async = true;
-    
-    const commonConfig = {
-        "colorTheme": "dark",
-        "locale": "tr",
-        "width": "100%",
-        "height": "100%",
-        "isTransparent": true,
-        "timezone": "Europe/Istanbul"
-    };
-
-    if (type === 'bistAll') {
-        script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-screener.js';
-        const config = {
-            ...commonConfig,
-            "defaultColumn": "overview",
-            "defaultScreen": "most_capitalized",
-            "market": "turkey",
-            "showToolbar": true
-        };
-        script.innerHTML = JSON.stringify(config);
-    } else {
-        script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-market-overview.js';
-        
-        let symbols = [];
-        if (type === 'bist30') {
-            symbols = [
-                { "s": "BIST:THYAO" }, { "s": "BIST:SASA" }, { "s": "BIST:EREGL" },
-                { "s": "BIST:ASELS" }, { "s": "BIST:TUPRS" }, { "s": "BIST:KCHOL" },
-                { "s": "BIST:GARAN" }, { "s": "BIST:SISE" }, { "s": "BIST:AKBNK" },
-                { "s": "BIST:BIMAS" }, { "s": "BIST:ISCTR" }, { "s": "BIST:YKBNK" }
-            ];
-        } else {
-            symbols = [
-                { "s": "BIST:XU100", "d": "BIST 100" },
-                { "s": "BIST:XU030", "d": "BIST 30" },
-                { "s": "BIST:XU050", "d": "BIST 50" },
-                { "s": "BIST:HEKTS" }, { "s": "BIST:KONTR" }, { "s": "BIST:SMRTG" },
-                { "s": "BIST:ODAS" }, { "s": "BIST:ZOREN" }, { "s": "BIST:PETKM" }
-            ];
-        }
-
-        const config = {
-            ...commonConfig,
-            "dateRange": "1D",
-            "showChart": true,
-            "showSymbolLogo": true,
-            "plotLineColorGrowing": "rgba(255, 171, 0, 1)",
-            "plotLineColorFalling": "rgba(255, 171, 0, 1)",
-            "gridLineColor": "rgba(42, 46, 57, 0)",
-            "scaleFontColor": "rgba(120, 123, 134, 1)",
-            "belowLineFillColorGrowing": "rgba(255, 171, 0, 0.12)",
-            "belowLineFillColorFalling": "rgba(255, 171, 0, 0.12)",
-            "symbolActiveColor": "rgba(255, 171, 0, 0.12)",
-            "tabs": [{ "title": type === 'bist30' ? "BIST 30" : "BIST 100", "symbols": symbols }]
-        };
-        script.innerHTML = JSON.stringify(config);
-    }
-    
-    container.appendChild(script);
-};
-
-// --- Market Tab Switching ---
-window.switchMarketTab = (tabId) => {
-    const buttons = document.querySelectorAll('.market-tab-btn');
-    buttons.forEach(b => b.classList.remove('active'));
-    
-    const targetBtn = Array.from(buttons).find(b => {
-        const attr = b.getAttribute('onclick');
-        return attr && attr.includes(tabId);
-    });
-    
-    if (targetBtn) targetBtn.classList.add('active');
-    
-    // Load the dynamic widget
-    loadMarketWidget(tabId);
-};
-
 // --- Tab Switching ---
 const initTabs = () => {
     const navItems = document.querySelectorAll('.nav-item');
@@ -606,13 +518,7 @@ const initTabs = () => {
             
             if (portfolioSection) portfolioSection.style.display = tab === 'portfolio' ? 'block' : 'none';
             if (analysisSection) analysisSection.style.display = tab === 'analysis' ? 'block' : 'none';
-            if (marketsSection) {
-                marketsSection.style.display = tab === 'markets' ? 'block' : 'none';
-                // Initialize default widget if not loaded
-                if (tab === 'markets' && !document.querySelector('#marketWidgetContainer script')) {
-                    loadMarketWidget('bist30');
-                }
-            }
+            if (marketsSection) marketsSection.style.display = tab === 'markets' ? 'block' : 'none';
         });
     });
 };
