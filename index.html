@@ -484,17 +484,25 @@
     </div>
 
     <div class="mobile-nav">
-        <button onclick="document.getElementById('openAddStockBtn').click()">
-            <i class="fa-solid fa-plus"></i>
-            <span>Ekle</span>
+        <button onclick="document.querySelector('[data-tab=dashboard]').click()" style="background:none; border:none; color:var(--text-muted); display:flex; flex-direction:column; align-items:center; gap:3px; font-size:0.6rem; font-weight:600; text-transform:uppercase; cursor:pointer;">
+            <i class="fa-solid fa-chart-pie" style="font-size:1.1rem; color:var(--text-secondary);"></i>
+            <span>Ana Sayfa</span>
         </button>
-        <button onclick="document.getElementById('openSyncModalBtn').click()">
-            <i class="fa-solid fa-cloud"></i>
+        <button onclick="document.querySelector('[data-tab=portfolio]').click()" style="background:none; border:none; color:var(--text-muted); display:flex; flex-direction:column; align-items:center; gap:3px; font-size:0.6rem; font-weight:600; text-transform:uppercase; cursor:pointer;">
+            <i class="fa-solid fa-briefcase" style="font-size:1.1rem; color:var(--text-secondary);"></i>
+            <span>Portföy</span>
+        </button>
+        <button onclick="document.querySelector('[data-tab=markets]').click()" style="background:none; border:none; color:var(--text-muted); display:flex; flex-direction:column; align-items:center; gap:3px; font-size:0.6rem; font-weight:600; text-transform:uppercase; cursor:pointer;">
+            <i class="fa-solid fa-chart-line" style="font-size:1.1rem; color:var(--text-secondary);"></i>
+            <span>Piyasa</span>
+        </button>
+        <button onclick="document.querySelector('[data-tab=follow]').click()" style="background:none; border:none; color:var(--text-muted); display:flex; flex-direction:column; align-items:center; gap:3px; font-size:0.6rem; font-weight:600; text-transform:uppercase; cursor:pointer;">
+            <i class="fa-solid fa-microchip" style="font-size:1.1rem; color:var(--accent);"></i>
+            <span style="color:var(--accent);">AI</span>
+        </button>
+        <button onclick="document.getElementById('openSyncModalBtn').click()" style="background:none; border:none; color:var(--text-muted); display:flex; flex-direction:column; align-items:center; gap:3px; font-size:0.6rem; font-weight:600; text-transform:uppercase; cursor:pointer;">
+            <i class="fa-solid fa-cloud" style="font-size:1.1rem; color:var(--text-secondary);"></i>
             <span>Bulut</span>
-        </button>
-        <button onclick="document.getElementById('addAnalysisBtn').click()">
-            <i class="fa-solid fa-chart-simple"></i>
-            <span>Analiz</span>
         </button>
     </div>
 
