@@ -198,7 +198,28 @@ const initCharts = () => {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                plugins: { 
+                    legend: { display: false },
+                    tooltip: {
+                        enabled: true,
+                        backgroundColor: 'rgba(17, 18, 22, 0.95)',
+                        titleColor: '#94a3b8',
+                        bodyColor: '#ffffff',
+                        bodyFont: { weight: '600', size: 14 },
+                        padding: 12,
+                        cornerRadius: 10,
+                        displayColors: false,
+                        borderColor: 'rgba(255,255,255,0.1)',
+                        borderWidth: 1,
+                        callbacks: {
+                            label: (context) => 'Net Kâr/Zarar: ' + formatCurrency(context.raw)
+                        }
+                    }
+                },
                 scales: {
                     x: { grid: { display: false }, border: { display: false } },
                     y: { grid: { color: 'rgba(255,255,255,0.03)' }, border: { display: false }, ticks: { display: false } }
