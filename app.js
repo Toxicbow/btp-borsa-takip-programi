@@ -2,6 +2,7 @@
 // --- App State ---
 let portfolio = [];
 let analysis = [];
+let portfolioHistory = [];
 let distributionChart = null;
 let performanceChart = null;
 let mainAreaChart = null;
@@ -34,6 +35,8 @@ const generateId = () => Date.now().toString(36) + Math.random().toString(36).su
 const saveToLocalStorage = () => {
     localStorage.setItem('portfolio_premium', JSON.stringify(portfolio));
     localStorage.setItem('analysis_v1', JSON.stringify(analysis));
+    localStorage.setItem('history_v1', JSON.stringify(portfolioHistory));
+    updateCharts();
 };
 
 const loadFromLocalStorage = () => {
@@ -43,9 +46,32 @@ const loadFromLocalStorage = () => {
     const aData = localStorage.getItem('analysis_v1');
     if (aData) { try { analysis = JSON.parse(aData); } catch (e) { analysis = []; } }
 
+    const hData = localStorage.getItem('history_v1');
+    if (hData) { try { portfolioHistory = JSON.parse(hData); } catch (e) { portfolioHistory = []; } }
+
+    trackDailyValue();
     renderTable();
     renderAnalysisTable();
     renderAssetMiniList();
+    updateCharts();
+};
+
+const trackDailyValue = () => {
+    const { currentTotal } = calculateProjectionData();
+    if (currentTotal === 0) return;
+    
+    const today = new Date().toLocaleDateString('tr-TR');
+    const existingIndex = portfolioHistory.findIndex(h => h.date === today);
+    
+    if (existingIndex !== -1) {
+        portfolioHistory[existingIndex].value = currentTotal;
+    } else {
+        portfolioHistory.push({ date: today, value: currentTotal });
+    }
+    
+    // Keep last 30 snapshots
+    if (portfolioHistory.length > 30) portfolioHistory.shift();
+    localStorage.setItem('history_v1', JSON.stringify(portfolioHistory));
 };
 
 // --- Core Logic ---
@@ -312,7 +338,7 @@ const initCharts = () => {
         performanceChart = new Chart(perfCtx, {
             type: 'line',
             data: {
-                labels: ['Şimdi', '1 Hf', '2 Hf', '3 Hf', 'Hedef'],
+                labels: ['Başlangıç', 'Vade 1', 'Vade 2', 'Vade 3', 'Hedef'],
                 datasets: [
                     { 
                         label: 'Mevcut Değer', 
@@ -456,9 +482,9 @@ const initPeriodButtons = () => {
             
             // Adjust labels based on period
             if (performanceChart) {
-                if (btn.id === 'btn1m') performanceChart.data.labels = ['1 Hf', '2 Hf', '3 Hf', 'Şimdi', 'Hedef'];
-                if (btn.id === 'btn3m') performanceChart.data.labels = ['1 Ay', '2 Ay', 'Şimdi', 'Hedef 1', 'Hedef 2'];
-                if (btn.id === 'btn1y') performanceChart.data.labels = ['3 Ay', '6 Ay', '9 Ay', 'Şimdi', 'Hedef'];
+                if (btn.id === 'btn1m') performanceChart.data.labels = ['1 Hf', '2 Hf', '3 Hf', 'Güncel', 'Hedef'];
+                if (btn.id === 'btn3m') performanceChart.data.labels = ['1 Ay', '2 Ay', 'Güncel', 'Hedef 1', 'Hedef 2'];
+                if (btn.id === 'btn1y') performanceChart.data.labels = ['3 Ay', '6 Ay', '9 Ay', 'Güncel', 'Hedef'];
                 performanceChart.update();
             }
         });
