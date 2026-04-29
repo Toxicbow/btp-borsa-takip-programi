@@ -607,6 +607,18 @@ form input:focus { border-color: var(--accent); }
     background: rgba(255,255,255,0.1) !important;
     color: var(--text-main) !important;
 }
+.market-pane {
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.tradingview-widget-container iframe {
+    border-radius: 0 0 16px 16px !important;
+}
 
 /* Mobile Responsiveness */
 @media screen and (max-width: 1200px) {

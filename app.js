@@ -497,15 +497,6 @@ window.switchMarketTab = (tabId) => {
     const buttons = document.querySelectorAll('.market-tab-btn');
     
     panes.forEach(p => p.style.display = 'none');
-    buttons.forEach(b => b.classList.remove('active'));
-    
-    const targetPane = document.getElementById(tabId);
-    const targetBtn = Array.from(buttons).find(b => b.getAttribute('onclick').includes(tabId));
-    
-    if (targetPane) targetPane.style.display = 'block';
-    if (targetBtn) targetBtn.classList.add('active');
-};
-
 // --- Market Tab Switching ---
 window.switchMarketTab = (tabId) => {
     const panes = document.querySelectorAll('.market-pane');
@@ -515,7 +506,11 @@ window.switchMarketTab = (tabId) => {
     buttons.forEach(b => b.classList.remove('active'));
     
     const targetPane = document.getElementById(tabId);
-    const targetBtn = Array.from(buttons).find(b => b.onclick.toString().includes(tabId));
+    // Find button by checking if its onclick attribute contains the tabId
+    const targetBtn = Array.from(buttons).find(b => {
+        const attr = b.getAttribute('onclick');
+        return attr && attr.includes(tabId);
+    });
     
     if (targetPane) targetPane.style.display = 'block';
     if (targetBtn) targetBtn.classList.add('active');

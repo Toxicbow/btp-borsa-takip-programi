@@ -265,49 +265,79 @@
                         </div>
 
                         <div id="marketTabContent" style="height: 600px; position: relative;">
-                            <!-- BIST 30 (Default) -->
+                            <!-- BIST 30 Pane -->
                             <div id="bist30" class="market-pane" style="height: 100%;">
                                 <div class="tradingview-widget-container" style="height: 100%;">
                                     <div class="tradingview-widget-container__widget"></div>
-                                    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-market-quotes.js" async>
+                                    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-market-overview.js" async>
                                     {
-                                    "width": "100%", "height": "100%",
-                                    "symbolsGroups": [{
-                                        "name": "BIST 30",
+                                    "colorTheme": "dark",
+                                    "dateRange": "12M",
+                                    "showChart": true,
+                                    "locale": "tr",
+                                    "largeChartUrl": "",
+                                    "isTransparent": true,
+                                    "showSymbolLogo": true,
+                                    "showFloatingTooltip": false,
+                                    "width": "100%",
+                                    "height": "100%",
+                                    "plotLineColorGrowing": "rgba(255, 171, 0, 1)",
+                                    "plotLineColorFalling": "rgba(255, 171, 0, 1)",
+                                    "gridLineColor": "rgba(240, 243, 250, 0)",
+                                    "scaleFontColor": "rgba(106, 109, 120, 1)",
+                                    "belowLineFillColorGrowing": "rgba(255, 171, 0, 0.12)",
+                                    "belowLineFillColorFalling": "rgba(255, 171, 0, 0.12)",
+                                    "belowLineFillColorGrowingBottom": "rgba(255, 171, 0, 0)",
+                                    "belowLineFillColorFallingBottom": "rgba(255, 171, 0, 0)",
+                                    "symbolActiveColor": "rgba(255, 171, 0, 0.12)",
+                                    "tabs": [
+                                        {
+                                        "title": "BIST 30 Hisseleri",
                                         "symbols": [
-                                            {"name": "BIST:THYAO"}, {"name": "BIST:SASA"}, {"name": "BIST:EREGL"}, {"name": "BIST:ASELS"}, {"name": "BIST:KCHOL"},
-                                            {"name": "BIST:GARAN"}, {"name": "BIST:TUPRS"}, {"name": "BIST:SISE"}, {"name": "BIST:AKBNK"}, {"name": "BIST:BIMAS"},
-                                            {"name": "BIST:EKGYO"}, {"name": "BIST:ISCTR"}, {"name": "BIST:KRDMD"}, {"name": "BIST:KOZAL"}, {"name": "BIST:PETKM"},
-                                            {"name": "BIST:PGSUS"}, {"name": "BIST:SAHOL"}, {"name": "BIST:TOASO"}, {"name": "BIST:YKBNK"}, {"name": "BIST:VESTL"}
+                                            { "s": "BIST:THYAO" }, { "s": "BIST:SASA" }, { "s": "BIST:EREGL" },
+                                            { "s": "BIST:ASELS" }, { "s": "BIST:KCHOL" }, { "s": "BIST:GARAN" },
+                                            { "s": "BIST:TUPRS" }, { "s": "BIST:SISE" }, { "s": "BIST:AKBNK" },
+                                            { "s": "BIST:BIMAS" }, { "s": "BIST:ISCTR" }, { "s": "BIST:SAHOL" },
+                                            { "s": "BIST:FROTO" }, { "s": "BIST:YKBNK" }, { "s": "BIST:KOZAL" }
                                         ]
-                                    }],
-                                    "showSymbolLogo": true, "colorTheme": "dark", "isTransparent": true, "locale": "tr"
+                                        }
+                                    ]
                                     }
                                     </script>
                                 </div>
                             </div>
-                            <!-- BIST 100 (Hidden) -->
+                            <!-- BIST 100 Pane -->
                             <div id="bist100" class="market-pane" style="height: 100%; display: none;">
                                 <div class="tradingview-widget-container" style="height: 100%;">
                                     <div class="tradingview-widget-container__widget"></div>
-                                    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-market-quotes.js" async>
+                                    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-market-overview.js" async>
                                     {
-                                    "width": "100%", "height": "100%",
-                                    "symbolsGroups": [{
-                                        "name": "BIST 100 Endeks",
-                                        "symbols": [{"name": "BIST:XU100"}, {"name": "BIST:XU030"}, {"name": "BIST:XU050"}]
-                                    }, {
-                                        "name": "Öne Çıkanlar",
+                                    "colorTheme": "dark",
+                                    "dateRange": "12M",
+                                    "showChart": true,
+                                    "locale": "tr",
+                                    "largeChartUrl": "",
+                                    "isTransparent": true,
+                                    "showSymbolLogo": true,
+                                    "showFloatingTooltip": false,
+                                    "width": "100%",
+                                    "height": "100%",
+                                    "tabs": [
+                                        {
+                                        "title": "BIST Endeksleri",
                                         "symbols": [
-                                            {"name": "BIST:HEKTS"}, {"name": "BIST:SMRTG"}, {"name": "BIST:KONTR"}, {"name": "BIST:ZOREN"}, {"name": "BIST:ODAS"}
+                                            { "s": "BIST:XU100", "d": "BIST 100" },
+                                            { "s": "BIST:XU030", "d": "BIST 30" },
+                                            { "s": "BIST:XU050", "d": "BIST 50" },
+                                            { "s": "BIST:XUTUM", "d": "BIST TÜM" }
                                         ]
-                                    }],
-                                    "showSymbolLogo": true, "colorTheme": "dark", "isTransparent": true, "locale": "tr"
+                                        }
+                                    ]
                                     }
                                     </script>
                                 </div>
                             </div>
-                            <!-- BIST All/500 (Hidden) -->
+                            <!-- All BIST Pane -->
                             <div id="bistAll" class="market-pane" style="height: 100%; display: none;">
                                 <iframe src="https://s.tradingview.com/embed-widget/screener/?locale=tr#%7B%22width%22%3A%22100%25%22%2C%22height%22%3A600%2C%22defaultColumn%22%3A%22overview%22%2C%22defaultScreen%22%3A%22most_capitalized%22%2C%22market%22%3A%22turkey%22%2C%22showToolbar%22%3Atrue%2C%22colorTheme%22%3A%22dark%22%2C%22isTransparent%22%3Atrue%7D" width="100%" height="100%" frameborder="0" style="border:none;"></iframe>
                             </div>
