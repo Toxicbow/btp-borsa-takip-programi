@@ -264,31 +264,27 @@
                             </div>
                         </div>
 
-                        <div id="marketTabContent" style="height: 600px; position: relative;">
+                        <div id="marketTabContent" style="height: 600px; position: relative; background: #121212;">
                             <!-- BIST 30 Pane -->
                             <div id="bist30" class="market-pane" style="height: 100%;">
-                                <div class="tradingview-widget-container" style="height: 100%;">
+                                <div class="tradingview-widget-container" style="height: 100%; width: 100%;">
                                     <div class="tradingview-widget-container__widget"></div>
                                     <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-market-overview.js" async>
                                     {
                                     "colorTheme": "dark",
-                                    "dateRange": "12M",
+                                    "dateRange": "1D",
                                     "showChart": true,
                                     "locale": "tr",
-                                    "largeChartUrl": "",
                                     "isTransparent": true,
                                     "showSymbolLogo": true,
-                                    "showFloatingTooltip": false,
                                     "width": "100%",
                                     "height": "100%",
                                     "plotLineColorGrowing": "rgba(255, 171, 0, 1)",
                                     "plotLineColorFalling": "rgba(255, 171, 0, 1)",
-                                    "gridLineColor": "rgba(240, 243, 250, 0)",
-                                    "scaleFontColor": "rgba(106, 109, 120, 1)",
+                                    "gridLineColor": "rgba(42, 46, 57, 0)",
+                                    "scaleFontColor": "rgba(120, 123, 134, 1)",
                                     "belowLineFillColorGrowing": "rgba(255, 171, 0, 0.12)",
                                     "belowLineFillColorFalling": "rgba(255, 171, 0, 0.12)",
-                                    "belowLineFillColorGrowingBottom": "rgba(255, 171, 0, 0)",
-                                    "belowLineFillColorFallingBottom": "rgba(255, 171, 0, 0)",
                                     "symbolActiveColor": "rgba(255, 171, 0, 0.12)",
                                     "tabs": [
                                         {
@@ -297,8 +293,8 @@
                                             { "s": "BIST:THYAO" }, { "s": "BIST:SASA" }, { "s": "BIST:EREGL" },
                                             { "s": "BIST:ASELS" }, { "s": "BIST:KCHOL" }, { "s": "BIST:GARAN" },
                                             { "s": "BIST:TUPRS" }, { "s": "BIST:SISE" }, { "s": "BIST:AKBNK" },
-                                            { "s": "BIST:BIMAS" }, { "s": "BIST:ISCTR" }, { "s": "BIST:SAHOL" },
-                                            { "s": "BIST:FROTO" }, { "s": "BIST:YKBNK" }, { "s": "BIST:KOZAL" }
+                                            { "s": "BIST:BIMAS" }, { "s": "BIST:ISCTR" }, { "s": "BIST:ARCLK" },
+                                            { "s": "BIST:FROTO" }, { "s": "BIST:KOZAL" }, { "s": "BIST:SAHOL" }
                                         ]
                                         }
                                     ]
@@ -308,23 +304,21 @@
                             </div>
                             <!-- BIST 100 Pane -->
                             <div id="bist100" class="market-pane" style="height: 100%; display: none;">
-                                <div class="tradingview-widget-container" style="height: 100%;">
+                                <div class="tradingview-widget-container" style="height: 100%; width: 100%;">
                                     <div class="tradingview-widget-container__widget"></div>
                                     <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-market-overview.js" async>
                                     {
                                     "colorTheme": "dark",
-                                    "dateRange": "12M",
+                                    "dateRange": "1D",
                                     "showChart": true,
                                     "locale": "tr",
-                                    "largeChartUrl": "",
                                     "isTransparent": true,
                                     "showSymbolLogo": true,
-                                    "showFloatingTooltip": false,
                                     "width": "100%",
                                     "height": "100%",
                                     "tabs": [
                                         {
-                                        "title": "BIST Endeksleri",
+                                        "title": "BIST 100 Endeksleri",
                                         "symbols": [
                                             { "s": "BIST:XU100", "d": "BIST 100" },
                                             { "s": "BIST:XU030", "d": "BIST 30" },
@@ -339,7 +333,22 @@
                             </div>
                             <!-- All BIST Pane -->
                             <div id="bistAll" class="market-pane" style="height: 100%; display: none;">
-                                <iframe src="https://s.tradingview.com/embed-widget/screener/?locale=tr#%7B%22width%22%3A%22100%25%22%2C%22height%22%3A600%2C%22defaultColumn%22%3A%22overview%22%2C%22defaultScreen%22%3A%22most_capitalized%22%2C%22market%22%3A%22turkey%22%2C%22showToolbar%22%3Atrue%2C%22colorTheme%22%3A%22dark%22%2C%22isTransparent%22%3Atrue%7D" width="100%" height="100%" frameborder="0" style="border:none;"></iframe>
+                                <div class="tradingview-widget-container" style="height: 100%; width: 100%;">
+                                    <div class="tradingview-widget-container__widget"></div>
+                                    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-screener.js" async>
+                                    {
+                                    "width": "100%",
+                                    "height": "100%",
+                                    "defaultColumn": "overview",
+                                    "defaultScreen": "most_capitalized",
+                                    "market": "turkey",
+                                    "showToolbar": true,
+                                    "colorTheme": "dark",
+                                    "locale": "tr",
+                                    "isTransparent": true
+                                    }
+                                    </script>
+                                </div>
                             </div>
                         </div>
                     </div>

@@ -497,12 +497,6 @@ window.switchMarketTab = (tabId) => {
     const buttons = document.querySelectorAll('.market-tab-btn');
     
     panes.forEach(p => p.style.display = 'none');
-// --- Market Tab Switching ---
-window.switchMarketTab = (tabId) => {
-    const panes = document.querySelectorAll('.market-pane');
-    const buttons = document.querySelectorAll('.market-tab-btn');
-    
-    panes.forEach(p => p.style.display = 'none');
     buttons.forEach(b => b.classList.remove('active'));
     
     const targetPane = document.getElementById(tabId);
