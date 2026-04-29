@@ -250,43 +250,18 @@
                         </div>
                     </div>
 
-                    <!-- BIST Market Overview (Multi-Tab) -->
-                    <div class="dashboard-card" style="height: 600px; padding:0;">
-                        <div class="tradingview-widget-container">
-                            <div class="tradingview-widget-container__widget"></div>
-                            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-market-overview.js" async>
-                            {
-                            "colorTheme": "dark",
-                            "dateRange": "1D",
-                            "showChart": true,
-                            "locale": "tr",
-                            "isTransparent": true,
-                            "showSymbolLogo": true,
-                            "width": "100%",
-                            "height": "100%",
-                            "tabs": [
-                                {
-                                "title": "BIST 30",
-                                "symbols": [
-                                    { "s": "BIST:THYAO" }, { "s": "BIST:SASA" }, { "s": "BIST:EREGL" },
-                                    { "s": "BIST:ASELS" }, { "s": "BIST:KCHOL" }, { "s": "BIST:GARAN" },
-                                    { "s": "BIST:TUPRS" }, { "s": "BIST:SISE" }, { "s": "BIST:AKBNK" },
-                                    { "s": "BIST:BIMAS" }, { "s": "BIST:EKGYO" }, { "s": "BIST:ISCTR" }
-                                ]
-                                },
-                                {
-                                "title": "BIST 100",
-                                "symbols": [
-                                    { "s": "BIST:XU100", "d": "BIST 100 Endeks" },
-                                    { "s": "BIST:HEKTS" }, { "s": "BIST:KOZAL" }, { "s": "BIST:PETKM" },
-                                    { "s": "BIST:PGSUS" }, { "s": "BIST:SAHOL" }, { "s": "BIST:TKFEN" },
-                                    { "s": "BIST:TOASO" }, { "s": "BIST:VESTL" }, { "s": "BIST:YKBNK" }
-                                ]
-                                }
-                            ]
-                            }
-                            </script>
-                        </div>
+                    <!-- BIST Stock List (Investing.com Widget for High Compatibility) -->
+                    <div class="dashboard-card" style="height: 600px; padding:0; overflow: hidden;">
+                        <iframe 
+                            src="https://tr.widgets.investing.com/top-stocks?theme=darkTheme&pairs=105,106,108,109,110,111,112,113,114,1968,103,104" 
+                            width="100%" 
+                            height="100%" 
+                            frameborder="0" 
+                            allowtransparency="true" 
+                            marginwidth="0" 
+                            marginheight="0"
+                            style="border:none;">
+                        </iframe>
                     </div>
                 </div>
 
