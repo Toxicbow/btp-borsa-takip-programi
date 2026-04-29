@@ -211,37 +211,49 @@
                 <div id="marketsSection" class="tab-content" style="display:none; margin-top: 2rem;">
                     <div class="summary-grid" style="margin-bottom: 2rem;">
                         <!-- USD/TRY Widget -->
-                        <div class="dashboard-card" style="height: 150px; overflow: hidden;">
+                        <div class="dashboard-card" style="height: 150px; overflow: hidden; padding:0;">
                             <div class="tradingview-widget-container">
                                 <div class="tradingview-widget-container__widget"></div>
-                                <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-single-quote.js" async>
+                                <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
                                 {
                                 "symbol": "FX:USDTRY",
                                 "width": "100%",
+                                "height": "100%",
+                                "locale": "tr",
+                                "dateRange": "12M",
                                 "colorTheme": "dark",
+                                "trendLineColor": "rgba(41, 98, 255, 1)",
+                                "underLineColor": "rgba(41, 98, 255, 0.3)",
+                                "underLineBottomColor": "rgba(41, 98, 255, 0)",
                                 "isTransparent": true,
-                                "locale": "tr"
+                                "autosize": true
                                 }
                                 </script>
                             </div>
                         </div>
                         <!-- EUR/TRY Widget -->
-                        <div class="dashboard-card" style="height: 150px; overflow: hidden;">
+                        <div class="dashboard-card" style="height: 150px; overflow: hidden; padding:0;">
                             <div class="tradingview-widget-container">
                                 <div class="tradingview-widget-container__widget"></div>
-                                <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-single-quote.js" async>
+                                <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
                                 {
                                 "symbol": "FX:EURTRY",
                                 "width": "100%",
+                                "height": "100%",
+                                "locale": "tr",
+                                "dateRange": "12M",
                                 "colorTheme": "dark",
+                                "trendLineColor": "rgba(41, 98, 255, 1)",
+                                "underLineColor": "rgba(41, 98, 255, 0.3)",
+                                "underLineBottomColor": "rgba(41, 98, 255, 0)",
                                 "isTransparent": true,
-                                "locale": "tr"
+                                "autosize": true
                                 }
                                 </script>
                             </div>
                         </div>
                         <!-- BIST100 Widget -->
-                        <div class="dashboard-card" style="height: 150px; overflow: hidden;">
+                        <div class="dashboard-card" style="height: 150px; overflow: hidden; padding:0;">
                             <div class="tradingview-widget-container">
                                 <div class="tradingview-widget-container__widget"></div>
                                 <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
@@ -252,43 +264,42 @@
                                 "locale": "tr",
                                 "dateRange": "12M",
                                 "colorTheme": "dark",
+                                "trendLineColor": "rgba(0, 200, 83, 1)",
+                                "underLineColor": "rgba(0, 200, 83, 0.3)",
+                                "underLineBottomColor": "rgba(0, 200, 83, 0)",
                                 "isTransparent": true,
-                                "autosize": true,
-                                "largeChartUrl": ""
+                                "autosize": true
                                 }
                                 </script>
                             </div>
                         </div>
                     </div>
 
-                    <div class="dashboard-card" style="height: 500px;">
-                        <div class="tradingview-widget-container" style="height: 100%; width: 100%;">
-                            <div class="tradingview-widget-container__widget" style="height: calc(100% - 32px); width: 100%;"></div>
-                            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-market-overview.js" async>
+                    <!-- Market Heatmap or Detailed List -->
+                    <div class="dashboard-card" style="height: 500px; padding:0;">
+                        <div class="tradingview-widget-container">
+                            <div class="tradingview-widget-container__widget"></div>
+                            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-market-quotes.js" async>
                             {
-                            "colorTheme": "dark",
-                            "dateRange": "12M",
-                            "showChart": true,
-                            "locale": "tr",
-                            "largeChartUrl": "",
-                            "isTransparent": true,
-                            "showSymbolLogo": true,
-                            "showFloatingTooltip": false,
                             "width": "100%",
                             "height": "100%",
-                            "tabs": [
+                            "symbolsGroups": [
                                 {
-                                "title": "Borsa İstanbul",
+                                "name": "Borsa İstanbul",
+                                "originalName": "Indices",
                                 "symbols": [
-                                    { "s": "BIST:XU100", "d": "BIST 100" },
-                                    { "s": "BIST:XU030", "d": "BIST 30" },
-                                    { "s": "BIST:XU050", "d": "BIST 50" },
-                                    { "s": "BIST:XU500", "d": "BIST 500" },
-                                    { "s": "BIST:XU100", "d": "BIST 100" }
-                                ],
-                                "originalTitle": "Indices"
+                                    { "name": "BIST:XU100", "displayName": "BIST 100" },
+                                    { "name": "BIST:XU030", "displayName": "BIST 30" },
+                                    { "name": "BIST:XU050", "displayName": "BIST 50" },
+                                    { "name": "BIST:XU500", "displayName": "BIST 500" },
+                                    { "name": "BIST:XU100", "displayName": "BIST 100" }
+                                ]
                                 }
-                            ]
+                            ],
+                            "showSymbolLogo": true,
+                            "colorTheme": "dark",
+                            "isTransparent": true,
+                            "locale": "tr"
                             }
                             </script>
                         </div>
