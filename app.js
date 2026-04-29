@@ -290,8 +290,8 @@ const initCharts = () => {
             data: {
                 labels: ['THYAO', 'SASA', 'EREGL', 'ASELS'],
                 datasets: [
-                    { label: 'Piyasa Değeri', data: [1200, 900, 800, 700], backgroundColor: '#ffffff', borderRadius: 4 },
-                    { label: 'Defter Değeri', data: [800, 700, 600, 400], backgroundColor: '#64748b', borderRadius: 4 }
+                    { label: 'Hedef Fiyat', data: [], backgroundColor: '#ffffff', borderRadius: 4 },
+                    { label: 'Güncel Fiyat', data: [], backgroundColor: '#64748b', borderRadius: 4 }
                 ]
             },
             options: {
@@ -342,10 +342,18 @@ const updateCharts = () => {
     
     // For the main chart, we simulate a trend if there's portfolio
     if (mainAreaChart && portfolio.length > 0) {
-        const total = portfolio.reduce((a, b) => a + (b.lots * b.currentPrice), 0);
+        const total = portfolio.reduce((a, b) => a + (parseFloat(b.lots) * parseFloat(b.currentPrice)), 0);
         const baseData = [total * 0.85, total * 0.9, total * 0.88, total * 0.95, total * 0.92, total * 0.98, total];
         mainAreaChart.data.datasets[0].data = baseData;
         mainAreaChart.update();
+    }
+
+    if (valuationBarChart && analysis.length > 0) {
+        const sorted = [...analysis].sort((a, b) => parseFloat(b.targetPrice) - parseFloat(a.targetPrice)).slice(0, 5);
+        valuationBarChart.data.labels = sorted.map(a => a.ticker.toUpperCase());
+        valuationBarChart.data.datasets[0].data = sorted.map(a => parseFloat(a.targetPrice));
+        valuationBarChart.data.datasets[1].data = sorted.map(a => parseFloat(a.currentPrice));
+        valuationBarChart.update();
     }
 };
 
