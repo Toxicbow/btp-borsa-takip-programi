@@ -31,23 +31,95 @@ const formatPercent = (val) => {
 };
 const generateId = () => Date.now().toString(36) + Math.random().toString(36).substr(2);
 
-// --- Storage ---
+// --- Storage & Safety Layer ---
+
+// Migrate old data formats to current structure
+const migratePortfolioData = (data) => {
+    if (!Array.isArray(data)) return [];
+    return data.map(s => ({
+        id: s.id || generateId(),
+        ticker: (s.ticker || s.symbol || '').toUpperCase(),
+        lots: parseFloat(s.lots || s.shares || s.quantity || 0),
+        avgCost: parseFloat(s.avgCost || s.avg_cost || s.cost || 0),
+        currentPrice: parseFloat(s.currentPrice || s.price || s.current_price || 0)
+    })).filter(s => s.ticker && s.lots > 0);
+};
+
+const migrateAnalysisData = (data) => {
+    if (!Array.isArray(data)) return [];
+    return data.map(a => ({
+        id: a.id || generateId(),
+        ticker: (a.ticker || '').toUpperCase(),
+        sector: a.sector || 'Diğer',
+        currentPrice: parseFloat(a.currentPrice || a.current_price || 0),
+        targetPrice: parseFloat(a.targetPrice || a.target_price || 0),
+        balance: a.balance || '0',
+        debt: a.debt || '0',
+        story: a.story || '0',
+        margin: a.margin || '0'
+    })).filter(a => a.ticker);
+};
+
 const saveToLocalStorage = () => {
-    localStorage.setItem('portfolio_premium', JSON.stringify(portfolio));
-    localStorage.setItem('analysis_v1', JSON.stringify(analysis));
-    localStorage.setItem('history_v1', JSON.stringify(portfolioHistory));
-    updateCharts();
+    try {
+        // Save current state
+        localStorage.setItem('portfolio_premium', JSON.stringify(portfolio));
+        localStorage.setItem('analysis_v1', JSON.stringify(analysis));
+        localStorage.setItem('history_v1', JSON.stringify(portfolioHistory));
+        // Save rolling backup
+        localStorage.setItem('portfolio_backup', JSON.stringify(portfolio));
+        localStorage.setItem('analysis_backup', JSON.stringify(analysis));
+        updateCharts();
+    } catch (e) {
+        console.error('Save error:', e);
+    }
 };
 
 const loadFromLocalStorage = () => {
-    const pData = localStorage.getItem('portfolio_premium') || localStorage.getItem('portfolio');
-    if (pData) { try { portfolio = JSON.parse(pData); } catch (e) { portfolio = []; } }
+    try {
+        // Load portfolio (try current key, then legacy key)
+        const pRaw = localStorage.getItem('portfolio_premium') || localStorage.getItem('portfolio');
+        if (pRaw) {
+            const parsed = JSON.parse(pRaw);
+            portfolio = migratePortfolioData(parsed);
+        }
 
-    const aData = localStorage.getItem('analysis_v1');
-    if (aData) { try { analysis = JSON.parse(aData); } catch (e) { analysis = []; } }
+        // Load analysis
+        const aRaw = localStorage.getItem('analysis_v1');
+        if (aRaw) {
+            const parsed = JSON.parse(aRaw);
+            analysis = migrateAnalysisData(parsed);
+        }
 
-    const hData = localStorage.getItem('history_v1');
-    if (hData) { try { portfolioHistory = JSON.parse(hData); } catch (e) { portfolioHistory = []; } }
+        // Load history
+        const hRaw = localStorage.getItem('history_v1');
+        if (hRaw) {
+            const parsed = JSON.parse(hRaw);
+            portfolioHistory = Array.isArray(parsed) ? parsed : [];
+        }
+
+        // If primary data empty but backup exists, restore from backup
+        if (portfolio.length === 0) {
+            const backupRaw = localStorage.getItem('portfolio_backup');
+            if (backupRaw) {
+                const backupParsed = JSON.parse(backupRaw);
+                const backup = migratePortfolioData(backupParsed);
+                if (backup.length > 0) {
+                    console.warn('Restoring from backup...');
+                    portfolio = backup;
+                    localStorage.setItem('portfolio_premium', JSON.stringify(portfolio));
+                }
+            }
+        }
+
+        console.log(`Data loaded: ${portfolio.length} stocks, ${analysis.length} analyses`);
+
+    } catch (e) {
+        console.error('Load error:', e);
+        portfolio = portfolio || [];
+        analysis = analysis || [];
+        portfolioHistory = portfolioHistory || [];
+    }
 
     renderTable();
     renderAnalysisTable();
@@ -55,6 +127,7 @@ const loadFromLocalStorage = () => {
     updateCharts();
     trackDailyValue();
 };
+
 
 const calculateProjectionData = () => {
     let currentTotal = 0;
@@ -915,69 +988,106 @@ document.addEventListener('DOMContentLoaded', () => {
     loadFromLocalStorage();
     initPeriodButtons();
     fetchAIData();
-    
+
+    // Safe: update timestamp only if element exists
+    const lastUpdateEl = document.getElementById('lastUpdate');
+    if (lastUpdateEl) lastUpdateEl.textContent = new Date().toLocaleTimeString('tr-TR');
+
+    // AI Search
     document.getElementById('aiSearchInput')?.addEventListener('input', (e) => {
         const q = e.target.value.toUpperCase();
-        aiFilteredData = aiData.filter(d => d.ticker.includes(q) || d.name.toUpperCase().includes(q));
+        aiFilteredData = aiData.filter(d => d.ticker.includes(q) || (d.name && d.name.toUpperCase().includes(q)));
         aiCurrentPage = 1;
         renderAITable();
     });
 
-    // Update update time
-    document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString('tr-TR');
-
+    // Add Stock Form
     addStockForm?.addEventListener('submit', (e) => {
         e.preventDefault();
-        portfolio.push({
-            id: generateId(),
-            ticker: document.getElementById('ticker').value.toUpperCase(),
-            lots: parseFloat(document.getElementById('lots').value),
-            avgCost: parseFloat(document.getElementById('avgCost').value),
-            currentPrice: parseFloat(document.getElementById('currentPrice').value)
-        });
-        saveToLocalStorage(); renderTable(); closeModal('addStockModal');
+        const ticker = document.getElementById('ticker')?.value?.trim().toUpperCase();
+        const lots = parseFloat(document.getElementById('lots')?.value);
+        const avgCost = parseFloat(document.getElementById('avgCost')?.value);
+        const currentPrice = parseFloat(document.getElementById('currentPrice')?.value);
+
+        if (!ticker || isNaN(lots) || isNaN(avgCost) || isNaN(currentPrice)) {
+            alert('Lütfen tüm alanları doğru doldurun.');
+            return;
+        }
+
+        portfolio.push({ id: generateId(), ticker, lots, avgCost, currentPrice });
+        saveToLocalStorage();
+        renderTable();
+        closeModal('addStockModal');
     });
 
+    // Edit Stock Form
     editStockForm?.addEventListener('submit', (e) => {
         e.preventDefault();
-        const id = document.getElementById('editId').value;
+        const id = document.getElementById('editId')?.value;
+        if (!id) return;
         const i = portfolio.findIndex(x => x.id === id);
         if (i !== -1) {
-            portfolio[i] = { ...portfolio[i], lots: parseFloat(document.getElementById('editLots').value), avgCost: parseFloat(document.getElementById('editAvgCost').value), currentPrice: parseFloat(document.getElementById('editCurrentPrice').value) };
-            saveToLocalStorage(); renderTable(); closeModal('editModal');
+            portfolio[i] = {
+                ...portfolio[i],
+                lots: parseFloat(document.getElementById('editLots')?.value) || portfolio[i].lots,
+                avgCost: parseFloat(document.getElementById('editAvgCost')?.value) || portfolio[i].avgCost,
+                currentPrice: parseFloat(document.getElementById('editCurrentPrice')?.value) || portfolio[i].currentPrice
+            };
+            saveToLocalStorage();
+            renderTable();
+            closeModal('editModal');
         }
     });
 
+    // Analysis Form
     document.getElementById('analysisForm')?.addEventListener('submit', (e) => {
         e.preventDefault();
-        const id = document.getElementById('analysisId').value;
+        const id = document.getElementById('analysisId')?.value;
+        const ticker = document.getElementById('a_ticker')?.value?.trim().toUpperCase();
+        if (!ticker) return;
+
         const aObj = {
             id: id || generateId(),
-            ticker: document.getElementById('a_ticker').value.toUpperCase(),
-            sector: document.getElementById('a_sector').value,
-            currentPrice: parseFloat(document.getElementById('a_currentPrice').value),
-            targetPrice: parseFloat(document.getElementById('a_targetPrice').value),
-            balance: document.getElementById('a_balance').value,
-            debt: document.getElementById('a_debt').value,
-            story: document.getElementById('a_story').value,
-            margin: document.getElementById('a_margin').value
+            ticker,
+            sector: document.getElementById('a_sector')?.value || 'Diğer',
+            currentPrice: parseFloat(document.getElementById('a_currentPrice')?.value) || 0,
+            targetPrice: parseFloat(document.getElementById('a_targetPrice')?.value) || 0,
+            balance: document.getElementById('a_balance')?.value || '0',
+            debt: document.getElementById('a_debt')?.value || '0',
+            story: document.getElementById('a_story')?.value || '0',
+            margin: document.getElementById('a_margin')?.value || '0'
         };
+
         if (id) {
             const idx = analysis.findIndex(x => x.id === id);
             if (idx !== -1) analysis[idx] = aObj;
-        } else { analysis.push(aObj); }
-        saveToLocalStorage(); renderAnalysisTable(); closeModal('analysisModal');
+            else analysis.push(aObj);
+        } else {
+            analysis.push(aObj);
+        }
+        saveToLocalStorage();
+        renderAnalysisTable();
+        closeModal('analysisModal');
     });
 
-    document.getElementById('openAddStockBtn')?.addEventListener('click', () => { 
-        document.getElementById('addStockForm').reset(); 
-        document.getElementById('addStockModal').classList.add('show'); 
+    // Button listeners with null guards
+    document.getElementById('openAddStockBtn')?.addEventListener('click', () => {
+        document.getElementById('addStockForm')?.reset();
+        document.getElementById('addStockModal')?.classList.add('show');
     });
-    document.getElementById('addAnalysisBtn')?.addEventListener('click', () => { 
-        document.getElementById('analysisForm').reset();
-        document.getElementById('analysisId').value = '';
-        document.getElementById('analysisModalTitle').textContent = 'Yeni Analiz Ekle';
-        analysisModal.classList.add('show'); 
+
+    document.getElementById('addAnalysisBtn')?.addEventListener('click', () => {
+        document.getElementById('analysisForm')?.reset();
+        const analysisIdEl = document.getElementById('analysisId');
+        if (analysisIdEl) analysisIdEl.value = '';
+        const titleEl = document.getElementById('analysisModalTitle');
+        if (titleEl) titleEl.textContent = 'Yeni Analiz Ekle';
+        analysisModal?.classList.add('show');
     });
-    document.getElementById('openSyncModalBtn')?.addEventListener('click', (e) => { e.preventDefault(); syncModal.classList.add('show'); });
+
+    document.getElementById('openSyncModalBtn')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        syncModal?.classList.add('show');
+    });
 });
+
