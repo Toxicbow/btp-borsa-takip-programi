@@ -312,27 +312,80 @@ const initCharts = () => {
         performanceChart = new Chart(perfCtx, {
             type: 'line',
             data: {
-                labels: ['1 ay', '2 ay', '3 ay', '4 ay', '5 ay', '6 ay'],
+                labels: ['Şimdi', '1 Hf', '2 Hf', '3 Hf', 'Hedef'],
                 datasets: [
-                    { label: 'Portföy', data: [0, 5, 12, 8, 15, 20], borderColor: '#d4af37', borderWidth: 2, tension: 0.4, pointRadius: 4, pointBackgroundColor: '#d4af37' },
-                    { label: 'BIST100', data: [0, 3, 7, 5, 10, 14], borderColor: '#64748b', borderWidth: 2, tension: 0.4, pointRadius: 0 },
-                    { label: 'ALTIN', data: [0, 2, 4, 6, 8, 9], borderColor: '#ffb74d', borderWidth: 2, tension: 0.4, pointRadius: 4, pointBackgroundColor: '#ffb74d' }
+                    { 
+                        label: 'Mevcut Değer', 
+                        data: [], 
+                        borderColor: '#d4af37', 
+                        borderWidth: 3, 
+                        tension: 0.4, 
+                        pointRadius: 4, 
+                        pointBackgroundColor: '#d4af37',
+                        fill: false
+                    },
+                    { 
+                        label: 'Hedeflenen Değer', 
+                        data: [], 
+                        borderColor: 'rgba(255,255,255,0.2)', 
+                        borderWidth: 2, 
+                        borderDash: [5, 5],
+                        tension: 0.4, 
+                        pointRadius: 0,
+                        fill: false
+                    }
                 ]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                plugins: { 
+                    legend: { display: false },
+                    tooltip: {
+                        enabled: true,
+                        backgroundColor: 'rgba(17, 18, 22, 0.95)',
+                        callbacks: {
+                            label: (context) => context.dataset.label + ': ' + formatCurrency(context.raw)
+                        }
+                    }
+                },
                 scales: {
-                    x: { grid: { display: false } },
-                    y: { grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { callback: v => '%' + v } }
+                    x: { grid: { display: false }, border: { display: false } },
+                    y: { grid: { color: 'rgba(255,255,255,0.03)' }, border: { display: false }, ticks: { callback: v => formatCurrency(v) } }
                 }
-            }
+            },
+            plugins: [{
+                id: 'crosshairLine',
+                afterDraw: (chart) => {
+                    if (chart.tooltip?._active?.length) {
+                        const activePoint = chart.tooltip._active[0];
+                        const ctx = chart.ctx;
+                        const x = activePoint.element.x;
+                        const topY = chart.scales.y.top;
+                        const bottomY = chart.scales.y.bottom;
+                        ctx.save();
+                        ctx.beginPath();
+                        ctx.moveTo(x, topY);
+                        ctx.lineTo(x, bottomY);
+                        ctx.lineWidth = 1;
+                        ctx.strokeStyle = 'rgba(212, 175, 55, 0.4)';
+                        ctx.setLineDash([5, 5]);
+                        ctx.stroke();
+                        ctx.restore();
+                    }
+                }
+            }]
         });
     }
 };
 
 const updateCharts = () => {
+    const { currentTotal, targetTotal } = calculateProjectionData();
+
     if (distributionChart) {
         const sorted = [...portfolio].sort((a, b) => (parseFloat(b.lots) * parseFloat(b.currentPrice)) - (parseFloat(a.lots) * parseFloat(a.currentPrice)));
         distributionChart.data.labels = sorted.map(s => s.ticker.toUpperCase());
@@ -340,10 +393,8 @@ const updateCharts = () => {
         distributionChart.update();
     }
     
-    // For the main chart, we simulate a trend if there's portfolio
     if (mainAreaChart && portfolio.length > 0) {
-        const total = portfolio.reduce((a, b) => a + (parseFloat(b.lots) * parseFloat(b.currentPrice)), 0);
-        const baseData = [total * 0.85, total * 0.9, total * 0.88, total * 0.95, total * 0.92, total * 0.98, total];
+        const baseData = [currentTotal * 0.85, currentTotal * 0.9, currentTotal * 0.88, currentTotal * 0.95, currentTotal * 0.92, currentTotal * 0.98, currentTotal];
         mainAreaChart.data.datasets[0].data = baseData;
         mainAreaChart.update();
     }
@@ -355,6 +406,63 @@ const updateCharts = () => {
         valuationBarChart.data.datasets[1].data = sorted.map(a => parseFloat(a.currentPrice));
         valuationBarChart.update();
     }
+
+    if (performanceChart && portfolio.length > 0) {
+        // Simple projection simulation
+        const steps = 5;
+        const currentData = [];
+        const targetData = [];
+        
+        for(let i=0; i<steps; i++) {
+            const ratio = i / (steps - 1);
+            currentData.push(currentTotal * (0.95 + (Math.random() * 0.1))); // Simulate recent volatility
+            targetData.push(currentTotal + (targetTotal - currentTotal) * ratio);
+        }
+        // Correct last points
+        currentData[steps-1] = currentTotal;
+        
+        performanceChart.data.datasets[0].data = currentData;
+        performanceChart.data.datasets[1].data = targetData;
+        performanceChart.update();
+    }
+};
+
+const calculateProjectionData = () => {
+    let currentTotal = 0;
+    let targetTotal = 0;
+    
+    portfolio.forEach(p => {
+        const cPrice = parseFloat(p.currentPrice) || 0;
+        const lots = parseFloat(p.lots) || 0;
+        currentTotal += lots * cPrice;
+        
+        const ana = analysis.find(a => a.ticker.toUpperCase() === p.ticker.toUpperCase());
+        if (ana) {
+            targetTotal += lots * (parseFloat(ana.targetPrice) || cPrice);
+        } else {
+            targetTotal += lots * cPrice;
+        }
+    });
+    return { currentTotal, targetTotal };
+};
+
+// Period functionality
+const initPeriodButtons = () => {
+    const buttons = document.querySelectorAll('.btn-period');
+    buttons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            buttons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            // Adjust labels based on period
+            if (performanceChart) {
+                if (btn.id === 'btn1m') performanceChart.data.labels = ['1 Hf', '2 Hf', '3 Hf', 'Şimdi', 'Hedef'];
+                if (btn.id === 'btn3m') performanceChart.data.labels = ['1 Ay', '2 Ay', 'Şimdi', 'Hedef 1', 'Hedef 2'];
+                if (btn.id === 'btn1y') performanceChart.data.labels = ['3 Ay', '6 Ay', '9 Ay', 'Şimdi', 'Hedef'];
+                performanceChart.update();
+            }
+        });
+    });
 };
 
 // --- Tab Switching ---
@@ -451,6 +559,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initCharts();
     initTabs();
     loadFromLocalStorage();
+    initPeriodButtons();
     
     // Update update time
     document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString('tr-TR');
