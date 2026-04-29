@@ -225,20 +225,24 @@ const renderTable = () => {
 const renderAssetMiniList = () => {
     const listEl = document.getElementById('assetMiniList');
     if (!listEl) return;
+    
+    // Hard clear
     listEl.innerHTML = '';
     
-    // Sort all by total value descending and show up to 3
+    // Sort and slice to EXACTLY 3
     const sorted = [...portfolio].sort((a, b) => {
         const valA = parseFloat(a.lots) * parseFloat(a.currentPrice);
         const valB = parseFloat(b.lots) * parseFloat(b.currentPrice);
         return valB - valA;
     });
     
-    const miniItems = sorted.slice(0, 3);
+    const top3 = sorted.slice(0, 3);
     
-    miniItems.forEach(s => {
+    top3.forEach(s => {
         const currentVal = parseFloat(s.lots) * parseFloat(s.currentPrice);
-        const prof = (parseFloat(s.currentPrice) - parseFloat(s.avgCost)) / parseFloat(s.avgCost) * 100;
+        const costVal = parseFloat(s.lots) * parseFloat(s.avgCost);
+        const prof = costVal > 0 ? ((currentVal - costVal) / costVal * 100) : 0;
+        
         const item = document.createElement('div');
         item.className = 'asset-item';
         item.innerHTML = `
@@ -257,8 +261,11 @@ const renderAssetMiniList = () => {
 };
 
 window.openAllAssetsModal = () => {
+    console.log("Opening All Assets Modal...");
     const listEl = document.getElementById('allAssetsList');
-    if (!listEl) return;
+    const modal = document.getElementById('allAssetsModal');
+    if (!listEl || !modal) return;
+    
     listEl.innerHTML = '';
 
     const sorted = [...portfolio].sort((a, b) => {
@@ -269,9 +276,12 @@ window.openAllAssetsModal = () => {
 
     sorted.forEach(s => {
         const currentVal = parseFloat(s.lots) * parseFloat(s.currentPrice);
-        const prof = (parseFloat(s.currentPrice) - parseFloat(s.avgCost)) / parseFloat(s.avgCost) * 100;
+        const costVal = parseFloat(s.lots) * parseFloat(s.avgCost);
+        const prof = costVal > 0 ? ((currentVal - costVal) / costVal * 100) : 0;
+
         const item = document.createElement('div');
         item.className = 'asset-item';
+        item.style.marginBottom = "15px";
         item.innerHTML = `
             <div class="asset-icon">${s.ticker.substring(0, 2).toUpperCase()}</div>
             <div class="asset-info">
@@ -286,7 +296,7 @@ window.openAllAssetsModal = () => {
         listEl.appendChild(item);
     });
 
-    document.getElementById('allAssetsModal').classList.add('show');
+    modal.classList.add('show');
 };
 
 const renderAnalysisTable = () => {
