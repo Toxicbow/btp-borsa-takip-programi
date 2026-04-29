@@ -517,7 +517,7 @@ const fetchAIData = async () => {
                     "change", "volume", "RSI", "EMA10", "EMA20", "Volatility.D", "average_volume_10d_calc"
                 ],
                 "sort": { "sortBy": "market_cap_basic", "sortOrder": "desc" },
-                "range": [0, 499] // Fetch up to 500 stocks
+                "range": [0, 999] // Fetch all BIST stocks
             })
         });
 
@@ -566,8 +566,10 @@ const calculateAIInsights = (raw) => {
     if (vola > 4) vade = 'KISA';
     else if (vola < 1.5) vade = 'UZUN';
 
+    const analysisDate = new Date().toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+
     return {
-        ticker, name, close, change, rsi, techScore, sentiment, aiTarget, potential, vade
+        ticker, name, close, change, rsi, techScore, sentiment, aiTarget, potential, vade, analysisDate
     };
 };
 
@@ -603,7 +605,8 @@ const renderAITable = () => {
                 </span>
             </td>
             <td>
-                <span class="badge-vade vade-${item.vade.toLowerCase()}">${item.vade} VADE</span>
+                <span class="badge-vade vade-${item.vade.toLowerCase()}">${item.vade}</span>
+                <div style="font-size: 0.65rem; color: var(--text-muted); margin-top: 4px;">${item.analysisDate}</div>
             </td>
             <td>
                 <div style="display: flex; align-items: center; gap: 8px;">
