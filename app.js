@@ -644,6 +644,39 @@ const renderAIPagination = () => {
     container.innerHTML = html;
 };
 
+let aiSortKey = '';
+let aiSortDir = 'desc';
+
+window.sortAIData = (key) => {
+    if (aiSortKey === key) {
+        aiSortDir = aiSortDir === 'desc' ? 'asc' : 'desc';
+    } else {
+        aiSortKey = key;
+        aiSortDir = 'desc';
+    }
+
+    aiFilteredData.sort((a, b) => {
+        let valA = a[key];
+        let valB = b[key];
+
+        // Custom priority for 'vade'
+        if (key === 'vade') {
+            const priority = { 'KISA': 1, 'ORTA': 2, 'UZUN': 3 };
+            valA = priority[a.vade];
+            valB = priority[b.vade];
+        }
+
+        if (typeof valA === 'string') {
+            return aiSortDir === 'desc' ? valB.localeCompare(valA) : valA.localeCompare(valB);
+        } else {
+            return aiSortDir === 'desc' ? valB - valA : valA - valB;
+        }
+    });
+
+    aiCurrentPage = 1;
+    renderAITable();
+};
+
 window.setAIPage = (p) => {
     aiCurrentPage = p;
     renderAITable();
