@@ -497,6 +497,7 @@ const initTabs = () => {
     const dashboardBody = document.querySelector('.dashboard-body');
     const portfolioSection = document.getElementById('portfolioSection');
     const analysisSection = document.getElementById('analysisSection');
+    const marketsSection = document.getElementById('marketsSection');
 
     navItems.forEach(item => {
         item.addEventListener('click', (e) => {
@@ -517,6 +518,7 @@ const initTabs = () => {
             
             if (portfolioSection) portfolioSection.style.display = tab === 'portfolio' ? 'block' : 'none';
             if (analysisSection) analysisSection.style.display = tab === 'analysis' ? 'block' : 'none';
+            if (marketsSection) marketsSection.style.display = tab === 'markets' ? 'block' : 'none';
         });
     });
 };

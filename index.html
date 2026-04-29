@@ -207,6 +207,98 @@
                     </div>
                 </div>
 
+                <!-- Markets Section (Live TradingView Widgets) -->
+                <div id="marketsSection" class="tab-content" style="display:none; margin-top: 2rem;">
+                    <div class="summary-grid" style="margin-bottom: 2rem;">
+                        <!-- USD/TRY Widget -->
+                        <div class="dashboard-card" style="height: 150px; overflow: hidden;">
+                            <div class="tradingview-widget-container">
+                                <div class="tradingview-widget-container__widget"></div>
+                                <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-single-quote.js" async>
+                                {
+                                "symbol": "FX:USDTRY",
+                                "width": "100%",
+                                "colorTheme": "dark",
+                                "isTransparent": true,
+                                "locale": "tr"
+                                }
+                                </script>
+                            </div>
+                        </div>
+                        <!-- EUR/TRY Widget -->
+                        <div class="dashboard-card" style="height: 150px; overflow: hidden;">
+                            <div class="tradingview-widget-container">
+                                <div class="tradingview-widget-container__widget"></div>
+                                <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-single-quote.js" async>
+                                {
+                                "symbol": "FX:EURTRY",
+                                "width": "100%",
+                                "colorTheme": "dark",
+                                "isTransparent": true,
+                                "locale": "tr"
+                                }
+                                </script>
+                            </div>
+                        </div>
+                        <!-- BIST100 Widget -->
+                        <div class="dashboard-card" style="height: 150px; overflow: hidden;">
+                            <div class="tradingview-widget-container">
+                                <div class="tradingview-widget-container__widget"></div>
+                                <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-single-quote.js" async>
+                                {
+                                "symbol": "BIST:XU100",
+                                "width": "100%",
+                                "colorTheme": "dark",
+                                "isTransparent": true,
+                                "locale": "tr"
+                                }
+                                </script>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card" style="height: 500px;">
+                        <div class="tradingview-widget-container" style="height: 100%; width: 100%;">
+                            <div class="tradingview-widget-container__widget" style="height: calc(100% - 32px); width: 100%;"></div>
+                            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-market-overview.js" async>
+                            {
+                            "colorTheme": "dark",
+                            "dateRange": "12M",
+                            "showChart": true,
+                            "locale": "tr",
+                            "largeChartUrl": "",
+                            "isTransparent": true,
+                            "showSymbolLogo": true,
+                            "showFloatingTooltip": false,
+                            "width": "100%",
+                            "height": "100%",
+                            "plotLineColorGrowing": "rgba(41, 98, 255, 1)",
+                            "plotLineColorFalling": "rgba(41, 98, 255, 1)",
+                            "gridLineColor": "rgba(240, 243, 250, 0)",
+                            "scaleFontColor": "rgba(106, 109, 120, 1)",
+                            "belowLineFillColorGrowing": "rgba(41, 98, 255, 0.12)",
+                            "belowLineFillColorFalling": "rgba(41, 98, 255, 0.12)",
+                            "belowLineFillColorGrowingBottom": "rgba(41, 98, 255, 0)",
+                            "belowLineFillColorFallingBottom": "rgba(41, 98, 255, 0)",
+                            "symbolActiveColor": "rgba(41, 98, 255, 0.12)",
+                            "tabs": [
+                                {
+                                "title": "Endeksler",
+                                "symbols": [
+                                    { "s": "BIST:XU100", "d": "BIST 100" },
+                                    { "s": "BIST:XU030", "d": "BIST 30" },
+                                    { "s": "BIST:XU050", "d": "BIST 50" },
+                                    { "s": "BIST:XU500", "d": "BIST 500" }
+                                ],
+                                "originalTitle": "Indices"
+                                }
+                            ]
+                            }
+                            </script>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </main>
     </div>
