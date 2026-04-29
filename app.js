@@ -590,8 +590,8 @@ const calculateProjectionData = () => {
         const lots = parseFloat(p.lots) || 0;
         currentTotal += lots * cPrice;
         
-        // 1. Check AI Original Data (Global AI Analysis)
-        const aiMatch = aiOriginalData.find(a => a.ticker.toUpperCase() === p.ticker.toUpperCase());
+        // 1. Check AI Data (Global AI Analysis)
+        const aiMatch = aiData.find(a => a.ticker.toUpperCase() === p.ticker.toUpperCase());
         // 2. Check Manual Analysis
         const ana = analysis.find(a => a.ticker.toUpperCase() === p.ticker.toUpperCase());
         
