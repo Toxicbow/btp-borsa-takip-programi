@@ -40,20 +40,46 @@ const saveToLocalStorage = () => {
 };
 
 const loadFromLocalStorage = () => {
-    const pData = localStorage.getItem('portfolio_premium') || localStorage.getItem('portfolio');
-    if (pData) { try { portfolio = JSON.parse(pData); } catch (e) { portfolio = []; } }
+    try {
+        const pData = localStorage.getItem('portfolio_premium') || localStorage.getItem('portfolio');
+        if (pData) { 
+            const parsed = JSON.parse(pData);
+            portfolio = Array.isArray(parsed) ? parsed : [];
+        } else {
+            portfolio = [];
+        }
 
-    const aData = localStorage.getItem('analysis_v1');
-    if (aData) { try { analysis = JSON.parse(aData); } catch (e) { analysis = []; } }
+        const aData = localStorage.getItem('analysis_v1');
+        if (aData) {
+            const parsed = JSON.parse(aData);
+            analysis = Array.isArray(parsed) ? parsed : [];
+        } else {
+            analysis = [];
+        }
 
-    const hData = localStorage.getItem('history_v1');
-    if (hData) { try { portfolioHistory = JSON.parse(hData); } catch (e) { portfolioHistory = []; } }
+        const hData = localStorage.getItem('history_v1');
+        if (hData) {
+            const parsed = JSON.parse(hData);
+            portfolioHistory = Array.isArray(parsed) ? parsed : [];
+        } else {
+            portfolioHistory = [];
+        }
 
-    trackDailyValue();
-    renderTable();
-    renderAnalysisTable();
-    renderAssetMiniList();
-    updateCharts();
+        console.log("Data loaded successfully:", { portfolio: portfolio.length, analysis: analysis.length });
+
+        trackDailyValue();
+        renderTable();
+        renderAnalysisTable();
+        renderAssetMiniList();
+        updateCharts();
+    } catch (err) {
+        console.error("Critical error during data load:", err);
+        // Emergency fallbacks
+        if (!portfolio) portfolio = [];
+        if (!analysis) analysis = [];
+        if (!portfolioHistory) portfolioHistory = [];
+        renderTable();
+    }
 };
 
 const trackDailyValue = () => {
