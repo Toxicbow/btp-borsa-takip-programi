@@ -75,6 +75,87 @@ const trackDailyValue = () => {
 };
 
 // --- Core Logic ---
+const calculateRiskScore = () => {
+    const scoreValEl = document.getElementById('riskScoreValue');
+    const scoreStatusEl = document.getElementById('riskScoreStatus');
+    const aiSummaryEl = document.getElementById('riskAiSummary');
+    
+    if (!portfolio || portfolio.length === 0) {
+        if (scoreValEl) scoreValEl.textContent = '0';
+        if (scoreStatusEl) scoreStatusEl.textContent = 'Veri Yok';
+        if (aiSummaryEl) aiSummaryEl.textContent = 'Analiz için portföyünüze hisse ekleyin.';
+        return;
+    }
+
+    const BIST30 = ['THYAO', 'EREGL', 'SASA', 'ASELS', 'KCHOL', 'TUPRS', 'SISE', 'BIMAS', 'AKBNK', 'ISCTR', 'YKBNK', 'GARAN', 'ARCLK', 'FROTO', 'TOASO', 'TCELL', 'PETKM', 'HEKTS', 'PGSUS', 'KOZAL', 'KOZAA', 'KRDMD', 'EKGYO', 'HALKB', 'VAKBN', 'ENKAI', 'SAHOL', 'GUBRF', 'ODAS', 'ALARK'];
+    
+    const SECTORS = {
+        'THYAO': 'Ulaşım', 'PGSUS': 'Ulaşım', 'TAVHL': 'Ulaşım',
+        'EREGL': 'Metal', 'KRDMD': 'Metal', 'ISDMR': 'Metal',
+        'SASA': 'Kimya', 'HEKTS': 'Kimya', 'PETKM': 'Kimya', 'GUBRF': 'Kimya',
+        'AKBNK': 'Banka', 'ISCTR': 'Banka', 'YKBNK': 'Banka', 'GARAN': 'Banka', 'HALKB': 'Banka', 'VAKBN': 'Banka',
+        'KCHOL': 'Holding', 'SAHOL': 'Holding', 'ALARK': 'Holding', 'AGHOL': 'Holding',
+        'ASELS': 'Savunma', 'SDTTR': 'Savunma',
+        'TUPRS': 'Enerji', 'ENJSA': 'Enerji', 'ODAS': 'Enerji', 'ZOREN': 'Enerji', 'ASTOR': 'Enerji',
+        'BIMAS': 'Perakende', 'MGROS': 'Perakende', 'SOKM': 'Perakende',
+        'FROTO': 'Otomotiv', 'TOASO': 'Otomotiv', 'DOAS': 'Otomotiv',
+        'TCELL': 'Teknoloji', 'TTKOM': 'Teknoloji', 'MIATK': 'Teknoloji', 'KONTROL': 'Teknoloji'
+    };
+
+    let totalVal = 0;
+    const weights = {};
+    const sectorWeights = {};
+    let nonBist30Weight = 0;
+
+    portfolio.forEach(s => {
+        const val = parseFloat(s.lots) * parseFloat(s.currentPrice);
+        totalVal += val;
+        weights[s.ticker] = (weights[s.ticker] || 0) + val;
+        
+        const sector = SECTORS[s.ticker] || 'Diğer';
+        sectorWeights[sector] = (sectorWeights[sector] || 0) + val;
+        
+        if (!BIST30.includes(s.ticker)) nonBist30Weight += val;
+    });
+
+    // 1. Concentration Risk (Max 35 points)
+    const maxWeight = Math.max(...Object.values(weights)) / totalVal;
+    let concentrationRisk = maxWeight > 0.4 ? 35 : (maxWeight > 0.25 ? 20 : 5);
+
+    // 2. Sector Risk (Max 35 points)
+    const maxSectorWeight = Math.max(...Object.values(sectorWeights)) / totalVal;
+    let sectorRisk = maxSectorWeight > 0.6 ? 35 : (maxSectorWeight > 0.4 ? 20 : 5);
+
+    // 3. Volatility Risk (BIST30 weight) (Max 30 points)
+    const nonBistRatio = nonBist30Weight / totalVal;
+    let volaRisk = nonBistRatio > 0.5 ? 30 : (nonBistRatio > 0.2 ? 15 : 5);
+
+    const totalScore = concentrationRisk + sectorRisk + volaRisk;
+    
+    // UI Update
+    if (scoreValEl) {
+        scoreValEl.textContent = totalScore;
+        scoreValEl.className = `stat-value ${totalScore > 70 ? 'danger' : (totalScore > 40 ? 'warning' : 'success')}`;
+    }
+    
+    if (scoreStatusEl) {
+        scoreStatusEl.textContent = totalScore > 70 ? 'Yüksek Risk' : (totalScore > 40 ? 'Orta Risk' : 'Düşük Risk');
+        scoreStatusEl.className = `stat-sub ${totalScore > 70 ? 'danger' : (totalScore > 40 ? 'warning' : 'success')}`;
+    }
+
+    // AI Summary
+    let summary = "";
+    if (totalScore <= 40) {
+        summary = "Portföyünüz dengeli ve sağlıklı görünüyor. Mevcut yapıyı koruyabilirsiniz.";
+    } else {
+        if (concentrationRisk >= 20) summary += "Tek hisse ağırlığınız yüksek, çeşitlendirme yapın. ";
+        if (sectorRisk >= 20) summary += "Sektörel yoğunlaşma var, farklı alanlara odaklanın. ";
+        if (volaRisk >= 20) summary += "BIST 30 dışı ağırlığınız fazla, volatiliteye dikkat.";
+    }
+    
+    if (aiSummaryEl) aiSummaryEl.textContent = "AI Analizi: " + summary;
+};
+
 const calculateTotals = () => {
     let cost = 0, current = 0;
     portfolio.forEach(s => { 
@@ -109,6 +190,8 @@ const calculateTotals = () => {
             chartPercentEl.className = `chart-total-percent ${profit >= 0 ? 'success' : 'danger'}`;
         }
     }
+    
+    calculateRiskScore();
 };
 
 const renderTable = () => {
