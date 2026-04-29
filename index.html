@@ -17,122 +17,205 @@
 </head>
 
 <body>
-    <div class="app-layout">
+    <div class="dashboard-app">
+        <!-- Sidebar -->
         <aside class="sidebar">
-            <div class="sidebar-scroll">
-                <div class="brand">
-                    <i class="fa-solid fa-chart-line gold-text"></i>
-                    <h1>BTP - <span style="font-weight: 300;">Borsa Takip Programı</span></h1>
+            <div class="brand">
+                <div class="logo">
+                    <span class="logo-b">B</span>
+                    <span class="logo-text">BTP</span>
                 </div>
-
-                <div class="summary-cards">
-                    <div class="sum-card">
-                        <label>Toplam Değer</label>
-                        <div id="currentValue" class="value">₺0,00</div>
-                    </div>
-                    <div class="sum-card">
-                        <label>Toplam Maliyet</label>
-                        <div id="totalCost" class="value">₺0,00</div>
-                    </div>
-                    <div class="sum-card highlight">
-                        <label>Net Kâr / Zarar</label>
-                        <div id="totalProfit" class="value">₺0,00</div>
-                        <span id="totalProfitPercent" class="badge">0%</span>
-                    </div>
-                </div>
-
-                <div id="portfolioInsights" class="portfolio-insights">
-                    <div class="insight-group">
-                        <label><i class="fa-solid fa-arrow-trend-up"></i> Yükselenler</label>
-                        <div id="gainerList" class="insight-list"></div>
-                    </div>
-                    <div class="insight-group">
-                        <label><i class="fa-solid fa-arrow-trend-down"></i> Düşenler</label>
-                        <div id="loserList" class="insight-list"></div>
-                    </div>
-                </div>
+                <div class="brand-name">Borsa Takip Programı</div>
             </div>
 
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active" data-tab="dashboard">
+                    <i class="fa-solid fa-house"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="nav-item" data-tab="markets">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span>Piyasa</span>
+                </a>
+                <a href="#" class="nav-item" data-tab="portfolio">
+                    <i class="fa-solid fa-wallet"></i>
+                    <span>Portföy</span>
+                </a>
+                <a href="#" class="nav-item" data-tab="analysis">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    <span>Analiz</span>
+                </a>
+                <a href="#" class="nav-item" data-tab="follow">
+                    <i class="fa-solid fa-eye"></i>
+                    <span>Takip</span>
+                </a>
+            </nav>
+
             <div class="sidebar-footer">
-                <button id="openSyncModalBtn" class="btn-ghost"><i class="fa-solid fa-cloud"></i> Bulut Cüzdanı</button>
+                <a href="#" class="nav-item" id="openSyncModalBtn">
+                    <i class="fa-solid fa-gear"></i>
+                    <span>Ayarlar</span>
+                </a>
             </div>
         </aside>
 
-        <main class="content">
-            <header class="main-header">
-                <h2>Varlıklarım</h2>
-                <div class="actions">
-                    <button id="openAddStockBtn" class="btn-action gold"><i class="fa-solid fa-plus"></i> Hisse
-                        Ekle</button>
-                    <button id="deleteAllBtn" class="btn-action red"><i class="fa-solid fa-trash"></i> Portföyü
-                        Sıfırla</button>
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Bar -->
+            <header class="top-bar">
+                <div class="welcome-msg">
+                    <h2>Hoş Geldiniz, <span id="userName">Yatırımcı</span></h2>
+                    <p>Son Güncelleme: <span id="lastUpdate">14:32:05</span></p>
+                </div>
+                <div class="top-actions">
+                    <div class="search-box">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" placeholder="Hisse ara...">
+                    </div>
+                    <div class="icon-actions">
+                        <button class="icon-btn"><i class="fa-solid fa-bell"></i><span class="badge"></span></button>
+                        <button class="icon-btn profile-btn"><i class="fa-solid fa-user"></i></button>
+                    </div>
                 </div>
             </header>
 
-            <div class="table-wrapper">
-                <table id="portfolioTable">
-                    <thead>
-                        <tr>
-                            <th>Hisse</th>
-                            <th>Adet</th>
-                            <th>Maliyet</th>
-                            <th>Fiyat</th>
-                            <th>T. Değer</th>
-                            <th>Kâr/Zarar</th>
-                            <th>Değişim</th>
-                            <th>İşlem</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tableBody"></tbody>
-                </table>
-                <div id="emptyState" class="empty">Henüz hisse eklenmedi.</div>
-            </div>
-
-            <!-- New Valuation Section -->
-            <header class="main-header" style="margin-top: 4rem;">
-                <h2>Değerleme Analizi</h2>
-                <div class="actions">
-                    <button id="addAnalysisBtn" class="btn-action gold"><i class="fa-solid fa-plus"></i> Analiz
-                        Ekle</button>
-                    <button id="deleteAnalysisBtn" class="btn-action red"><i class="fa-solid fa-trash"></i> Listeyi
-                        Temizle</button>
+            <!-- Dashboard Content -->
+            <div class="dashboard-body">
+                <!-- Summary Stats -->
+                <div class="summary-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Toplam Varlık</div>
+                        <div class="stat-value" id="currentValue">₺0,00</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Toplam Kâr/Zarar <i class="fa-solid fa-circle-info"></i></div>
+                        <div class="stat-value success" id="totalProfit">₺0,00</div>
+                        <div class="stat-sub" id="totalProfitPercent">+0,00%</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Portföy RiskSkoru <i class="fa-solid fa-circle-info"></i></div>
+                        <div class="stat-value warning">68</div>
+                        <div class="stat-sub">Orta</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">NAKİT DENGESİ</div>
+                        <div class="stat-value" id="totalCost">₺0,00</div>
+                    </div>
                 </div>
-            </header>
 
-            <div class="table-wrapper" style="overflow-x: auto;">
-                <table id="analysisTable">
-                    <thead>
-                        <tr>
-                            <th>Hisse</th>
-                            <th>Sektör</th>
-                            <th>Potansiyel</th>
-                            <th>İskonto</th>
-                            <th>Fiyat</th>
-                            <th>Hedef</th>
-                            <th>Bilanço</th>
-                            <th>Borç/Özk.</th>
-                            <th>Hikaye</th>
-                            <th>Marj</th>
-                            <th>Puan</th>
-                            <th style="text-align:right;">İşlem</th>
-                        </tr>
-                    </thead>
-                    <tbody id="analysisTableBody"></tbody>
-                </table>
-                <div id="emptyAnalysisState" class="empty">Henüz analiz verisi eklenmedi.</div>
-            </div>
-
-            <div class="charts-grid">
-                <div class="chart-container">
-                    <h3>Dağılım</h3>
-                    <canvas id="distributionChart"></canvas>
+                <!-- Main Chart -->
+                <div class="main-chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title">Net Kâr / Zarar</div>
+                        <div class="chart-total-profit success">+₺1,240.00</div>
+                        <div class="chart-total-percent success">+%2.5</div>
+                        <div class="chart-period">Bu Ay</div>
+                    </div>
+                    <div class="main-chart-container">
+                        <canvas id="mainAreaChart"></canvas>
+                    </div>
                 </div>
-                <div class="chart-container">
-                    <h3>Performans</h3>
-                    <canvas id="performanceChart"></canvas>
-                </div>
-            </div>
 
+                <!-- Bottom Grid -->
+                <div class="bottom-grid">
+                    <!-- Assets -->
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h3>Varlıklarım</h3>
+                        </div>
+                        <div class="assets-content">
+                            <div class="donut-container">
+                                <canvas id="distributionChart"></canvas>
+                            </div>
+                            <div class="asset-list" id="assetMiniList">
+                                <!-- JS items -->
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <button id="openAddStockBtn" class="add-btn"><i class="fa-solid fa-plus"></i> Hisse Ekle</button>
+                        </div>
+                    </div>
+
+                    <!-- Valuation Analysis -->
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h3>Değerleme Analizi</h3>
+                        </div>
+                        <div class="bar-chart-container">
+                            <canvas id="valuationBarChart"></canvas>
+                        </div>
+                        <div class="card-footer">
+                            <button id="addAnalysisBtn" class="add-btn"><i class="fa-solid fa-magnifying-glass-chart"></i> Analiz Ekle</button>
+                        </div>
+                    </div>
+
+                    <!-- Performance -->
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h3>Performans</h3>
+                            <div class="card-actions">
+                                <div class="period-toggle">
+                                    <button class="active">1 ay</button>
+                                    <button>3 ay</button>
+                                    <button>1 yıl</button>
+                                </div>
+                                <button class="icon-btn mini"><i class="fa-solid fa-ellipsis"></i></button>
+                            </div>
+                        </div>
+                        <div class="line-chart-container">
+                            <canvas id="performanceChart"></canvas>
+                        </div>
+                        <div class="chart-legend">
+                            <span><i class="dot portfoy"></i> Portföy</span>
+                            <span><i class="dot bist"></i> BIST100</span>
+                            <span><i class="dot altin"></i> ALTIN</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Portfolio Table Section (Hidden by default or shown in Portföy tab) -->
+                <div id="portfolioSection" class="tab-content" style="display:none; margin-top: 2rem;">
+                    <div class="table-card">
+                        <table id="portfolioTable">
+                            <thead>
+                                <tr>
+                                    <th>Hisse</th>
+                                    <th>Adet</th>
+                                    <th>Maliyet</th>
+                                    <th>Fiyat</th>
+                                    <th>T. Değer</th>
+                                    <th>Kâr/Zarar</th>
+                                    <th>Değişim</th>
+                                    <th>İşlem</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Analysis Table Section (Hidden by default) -->
+                <div id="analysisSection" class="tab-content" style="display:none; margin-top: 2rem;">
+                    <div class="table-card">
+                        <table id="analysisTable">
+                            <thead>
+                                <tr>
+                                    <th>Hisse</th>
+                                    <th>Sektör</th>
+                                    <th>Potansiyel</th>
+                                    <th>İskonto</th>
+                                    <th>Fiyat</th>
+                                    <th>Hedef</th>
+                                    <th>Puan</th>
+                                    <th style="text-align:right;">İşlem</th>
+                                </tr>
+                            </thead>
+                            <tbody id="analysisTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
         </main>
     </div>
 

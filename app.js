@@ -3,17 +3,13 @@ let portfolio = [];
 let analysis = [];
 let distributionChart = null;
 let performanceChart = null;
+let mainAreaChart = null;
+let valuationBarChart = null;
 
 // --- DOM Elements ---
 const addStockForm = document.getElementById('addStockForm');
 const tableBody = document.getElementById('tableBody');
-const emptyState = document.getElementById('emptyState');
-const portfolioTable = document.getElementById('portfolioTable');
-
 const analysisTableBody = document.getElementById('analysisTableBody');
-const emptyAnalysisState = document.getElementById('emptyAnalysisState');
-const analysisTable = document.getElementById('analysisTable');
-const analysisForm = document.getElementById('analysisForm');
 
 const totalCostEl = document.getElementById('totalCost');
 const currentValueEl = document.getElementById('currentValue');
@@ -27,18 +23,11 @@ const analysisModal = document.getElementById('analysisModal');
 
 // --- Utility Functions ---
 const formatCurrency = (val) => new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(val);
-const formatPercent = (val) => new Intl.NumberFormat('tr-TR', { style: 'percent', minimumFractionDigits: 2 }).format(val / 100);
-const generateId = () => Date.now().toString(36) + Math.random().toString(36).substr(2);
-
-// --- Encryption ---
-const encryptData = (data, pass) => pass ? CryptoJS.AES.encrypt(JSON.stringify(data), pass).toString() : data;
-const decryptData = (str, pass) => {
-    try {
-        if (!pass) return JSON.parse(str);
-        const bytes = CryptoJS.AES.decrypt(str, pass);
-        return JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
-    } catch (e) { return null; }
+const formatPercent = (val) => {
+    const res = (val / 100).toLocaleString('tr-TR', { style: 'percent', minimumFractionDigits: 2 });
+    return (val >= 0 ? '+' : '') + res;
 };
+const generateId = () => Date.now().toString(36) + Math.random().toString(36).substr(2);
 
 // --- Storage ---
 const saveToLocalStorage = () => {
@@ -55,139 +44,119 @@ const loadFromLocalStorage = () => {
 
     renderTable();
     renderAnalysisTable();
+    renderAssetMiniList();
 };
 
-// --- Portfolio Core ---
+// --- Core Logic ---
 const calculateTotals = () => {
     let cost = 0, current = 0;
-    portfolio.forEach(s => { cost += (parseFloat(s.lots) * parseFloat(s.avgCost)); current += (parseFloat(s.lots) * parseFloat(s.currentPrice)); });
+    portfolio.forEach(s => { 
+        cost += (parseFloat(s.lots) * parseFloat(s.avgCost)); 
+        current += (parseFloat(s.lots) * parseFloat(s.currentPrice)); 
+    });
     const profit = current - cost;
     const percent = cost > 0 ? (profit / cost) * 100 : 0;
 
     if (currentValueEl) currentValueEl.textContent = formatCurrency(current);
     if (totalCostEl) totalCostEl.textContent = formatCurrency(cost);
+    
     if (totalProfitEl) {
-        totalProfitEl.textContent = (profit >= 0 ? '+' : '') + formatCurrency(profit);
-        totalProfitEl.style.color = profit >= 0 ? 'var(--up)' : 'var(--down)';
-    }
-    if (totalProfitPercentEl) {
-        totalProfitPercentEl.textContent = (profit >= 0 ? '+' : '') + formatPercent(percent);
-        totalProfitPercentEl.className = `badge ${profit >= 0 ? 'up' : 'down'}`;
-    }
-
-    // Insights
-    try {
-        const gainerListEl = document.getElementById('gainerList');
-        const loserListEl = document.getElementById('loserList');
-
-        if (gainerListEl && loserListEl) {
-            gainerListEl.innerHTML = '';
-            loserListEl.innerHTML = '';
-
-            if (portfolio && portfolio.length > 0) {
-                const calculated = portfolio.map(s => {
-                    const c = (parseFloat(s.lots) * parseFloat(s.avgCost));
-                    const v = (parseFloat(s.lots) * parseFloat(s.currentPrice));
-                    const p = v - c;
-                    const per = c > 0 ? (p / c * 100) : 0;
-                    return { ...s, per };
-                });
-
-                const gainers = calculated.filter(s => s.per >= 0).sort((a, b) => b.per - a.per);
-                const losers = calculated.filter(s => s.per < 0).sort((a, b) => a.per - b.per);
-
-                gainers.forEach(s => {
-                    const row = document.createElement('div');
-                    row.className = 'insight-row up';
-                    row.innerHTML = `<span>${s.ticker.toUpperCase()}</span> <span>%${s.per.toFixed(2)}</span>`;
-                    gainerListEl.appendChild(row);
-                });
-
-                losers.forEach(s => {
-                    const row = document.createElement('div');
-                    row.className = 'insight-row down';
-                    row.innerHTML = `<span>${s.ticker.toUpperCase()}</span> <span>%${s.per.toFixed(2)}</span>`;
-                    loserListEl.appendChild(row);
-                });
-
-                if (gainers.length === 0) gainerListEl.innerHTML = '<div style="font-size:0.8rem; color:var(--text-muted); padding:5px;">Yükselen yok.</div>';
-                if (losers.length === 0) loserListEl.innerHTML = '<div style="font-size:0.8rem; color:var(--text-muted); padding:5px;">Düşen yok.</div>';
-            } else {
-                gainerListEl.innerHTML = '<div style="font-size:0.8rem; color:var(--text-muted); padding:5px;">Veri yok.</div>';
-                loserListEl.innerHTML = '<div style="font-size:0.8rem; color:var(--text-muted); padding:5px;">Veri yok.</div>';
-            }
+        totalProfitEl.textContent = formatCurrency(profit);
+        totalProfitEl.className = `stat-value ${profit >= 0 ? 'success' : 'danger'}`;
+        
+        // Also update dashboard chart header
+        const chartProfitEl = document.querySelector('.chart-total-profit');
+        if (chartProfitEl) {
+            chartProfitEl.textContent = (profit >= 0 ? '+' : '') + formatCurrency(profit);
+            chartProfitEl.className = `chart-total-profit ${profit >= 0 ? 'success' : 'danger'}`;
         }
-    } catch (e) { console.error("Insights Error:", e); }
+    }
+    
+    if (totalProfitPercentEl) {
+        totalProfitPercentEl.textContent = formatPercent(percent);
+        totalProfitPercentEl.className = `stat-sub ${profit >= 0 ? 'success' : 'danger'}`;
+
+        const chartPercentEl = document.querySelector('.chart-total-percent');
+        if (chartPercentEl) {
+            chartPercentEl.textContent = formatPercent(percent);
+            chartPercentEl.className = `chart-total-percent ${profit >= 0 ? 'success' : 'danger'}`;
+        }
+    }
 };
 
 const renderTable = () => {
     if (!tableBody) return;
     tableBody.innerHTML = '';
-    if (portfolio.length === 0) {
-        if (emptyState) emptyState.style.display = 'block';
-        if (portfolioTable) portfolioTable.style.display = 'none';
-        calculateTotals();
-        return;
-    }
-    if (emptyState) emptyState.style.display = 'none';
-    if (portfolioTable) portfolioTable.style.display = 'table';
-
     portfolio.forEach((s) => {
         const val = parseFloat(s.lots) * parseFloat(s.currentPrice);
         const prof = val - (parseFloat(s.lots) * parseFloat(s.avgCost));
         const pPer = (parseFloat(s.lots) * parseFloat(s.avgCost)) > 0 ? (prof / (parseFloat(s.lots) * parseFloat(s.avgCost)) * 100) : 0;
         const row = document.createElement('tr');
         row.innerHTML = `
-            <td><strong style="color:var(--gold);">${s.ticker.toUpperCase()}</strong></td>
+            <td><strong style="color:var(--accent);">${s.ticker.toUpperCase()}</strong></td>
             <td>${s.lots}</td>
             <td>${formatCurrency(s.avgCost)}</td>
             <td>${formatCurrency(s.currentPrice)}</td>
             <td style="font-weight:600;">${formatCurrency(val)}</td>
-            <td class="${prof >= 0 ? 'up' : 'down'}">${prof >= 0 ? '+' : ''}${formatCurrency(prof)}</td>
-            <td class="${prof >= 0 ? 'up' : 'down'}">${prof >= 0 ? '▲' : '▼'} ${Math.abs(pPer).toFixed(2)}%</td>
+            <td class="${prof >= 0 ? 'success' : 'danger'}">${prof >= 0 ? '+' : ''}${formatCurrency(prof)}</td>
+            <td class="${prof >= 0 ? 'success' : 'danger'}">${prof >= 0 ? '▲' : '▼'} ${Math.abs(pPer).toFixed(2)}%</td>
             <td style="text-align:right;">
-                <button class="btn-icon" onclick="openEditModal('${s.id}')"><i class="fa-solid fa-pen-to-square"></i></button>
-                <button class="btn-icon delete" onclick="deleteStock('${s.id}')"><i class="fa-solid fa-trash-can"></i></button>
+                <button class="icon-btn mini" onclick="openEditModal('${s.id}')"><i class="fa-solid fa-pen"></i></button>
+                <button class="icon-btn mini" onclick="deleteStock('${s.id}')"><i class="fa-solid fa-trash"></i></button>
             </td>
         `;
         tableBody.appendChild(row);
     });
     calculateTotals();
     updateCharts();
+    renderAssetMiniList();
+};
+
+const renderAssetMiniList = () => {
+    const listEl = document.getElementById('assetMiniList');
+    if (!listEl) return;
+    listEl.innerHTML = '';
+    
+    // Take top 3-4 assets
+    const sorted = [...portfolio].sort((a, b) => (b.lots * b.currentPrice) - (a.lots * a.currentPrice)).slice(0, 4);
+    
+    sorted.forEach(s => {
+        const prof = (s.currentPrice - s.avgCost) / s.avgCost * 100;
+        const item = document.createElement('div');
+        item.className = 'asset-item';
+        item.innerHTML = `
+            <div class="asset-icon">${s.ticker.substring(0, 2)}</div>
+            <div class="asset-info">
+                <div class="asset-name">${s.ticker}</div>
+                <div class="asset-count">${s.lots} Adet</div>
+            </div>
+            <div class="asset-price-box">
+                <div class="asset-price">${formatCurrency(s.currentPrice)}</div>
+                <div class="asset-change ${prof >= 0 ? 'success' : 'danger'}">${prof >= 0 ? '+' : ''}${prof.toFixed(1)}%</div>
+            </div>
+        `;
+        listEl.appendChild(item);
+    });
 };
 
 const renderAnalysisTable = () => {
     if (!analysisTableBody) return;
     analysisTableBody.innerHTML = '';
-    if (analysis.length === 0) {
-        if (emptyAnalysisState) emptyAnalysisState.style.display = 'block';
-        if (analysisTable) analysisTable.style.display = 'none';
-        return;
-    }
-    if (emptyAnalysisState) emptyAnalysisState.style.display = 'none';
-    if (analysisTable) analysisTable.style.display = 'table';
-
     analysis.forEach(a => {
         const pot = ((parseFloat(a.targetPrice) / parseFloat(a.currentPrice)) - 1) * 100;
-        const isc = (1 - (parseFloat(a.currentPrice) / parseFloat(a.targetPrice))) * 100;
         const totalPuan = (parseFloat(a.balance) + parseFloat(a.debt) + parseFloat(a.story) + parseFloat(a.margin)).toFixed(1);
-
         const row = document.createElement('tr');
         row.innerHTML = `
-            <td><strong style="color:var(--gold);">${a.ticker.toUpperCase()}</strong></td>
+            <td><strong style="color:var(--accent);">${a.ticker.toUpperCase()}</strong></td>
             <td><span style="font-size:0.85rem; color:var(--text-muted);">${a.sector}</span></td>
-            <td class="up">%${pot.toFixed(1)}</td>
-            <td class="up">%${isc.toFixed(1)}</td>
+            <td class="success">%${pot.toFixed(1)}</td>
+            <td class="success">%${(100 - (a.currentPrice/a.targetPrice*100)).toFixed(1)}</td>
             <td>${formatCurrency(a.currentPrice)}</td>
-            <td style="color:var(--gold); font-weight:600;">${formatCurrency(a.targetPrice)}</td>
-            <td>${a.balance}</td>
-            <td>${a.debt}</td>
-            <td>${a.story}</td>
-            <td>${a.margin}</td>
-            <td><span class="badge ${totalPuan >= 2 ? 'up' : 'down'}">${totalPuan}</span></td>
+            <td style="color:var(--accent); font-weight:600;">${formatCurrency(a.targetPrice)}</td>
+            <td><span class="badge ${totalPuan >= 2 ? 'success' : 'danger'}">${totalPuan}</span></td>
             <td style="text-align:right;">
-                <button class="btn-icon" onclick="openEditAnalysis('${a.id}')"><i class="fa-solid fa-pen-to-square"></i></button>
-                <button class="btn-icon delete" onclick="deleteAnalysis('${a.id}')"><i class="fa-solid fa-trash"></i></button>
+                <button class="icon-btn mini" onclick="openEditAnalysis('${a.id}')"><i class="fa-solid fa-pen"></i></button>
+                <button class="icon-btn mini" onclick="deleteAnalysis('${a.id}')"><i class="fa-solid fa-trash"></i></button>
             </td>
         `;
         analysisTableBody.appendChild(row);
@@ -196,47 +165,167 @@ const renderAnalysisTable = () => {
 
 // --- Charts ---
 const initCharts = () => {
-    const dCtx = document.getElementById('distributionChart')?.getContext('2d');
-    const pCtx = document.getElementById('performanceChart')?.getContext('2d');
-    if (!dCtx || !pCtx) return;
+    Chart.defaults.color = '#64748b';
+    Chart.defaults.font.family = "'Inter', sans-serif";
 
-    if (distributionChart) distributionChart.destroy();
-    if (performanceChart) performanceChart.destroy();
+    // Main Area Chart
+    const mainCtx = document.getElementById('mainAreaChart')?.getContext('2d');
+    if (mainCtx) {
+        const gradient = mainCtx.createLinearGradient(0, 0, 0, 300);
+        gradient.addColorStop(0, 'rgba(0, 200, 83, 0.2)');
+        gradient.addColorStop(1, 'rgba(0, 200, 83, 0)');
 
-    const chartOptions = {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: {
-                position: 'bottom',
-                labels: { color: '#888', font: { family: 'Inter', size: 10 } }
+        mainAreaChart = new Chart(mainCtx, {
+            type: 'line',
+            data: {
+                labels: ['1 Nis', '5 Nis', '10 Nis', '15 Nis', '20 Nis', '25 Nis', 'Bugün'],
+                datasets: [{
+                    label: 'Net Kar',
+                    data: [1000, 1200, 1100, 1400, 1350, 1600, 1800],
+                    borderColor: '#00c853',
+                    borderWidth: 3,
+                    fill: true,
+                    backgroundColor: gradient,
+                    tension: 0.4,
+                    pointRadius: 0,
+                    pointHoverRadius: 6,
+                    pointHoverBackgroundColor: '#00c853',
+                    pointHoverBorderColor: '#fff',
+                    pointHoverBorderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { grid: { display: false }, border: { display: false } },
+                    y: { grid: { color: 'rgba(255,255,255,0.03)' }, border: { display: false }, ticks: { display: false } }
+                }
             }
-        }
-    };
+        });
+    }
 
-    distributionChart = new Chart(dCtx, {
-        type: 'doughnut',
-        data: { labels: [], datasets: [{ data: [], backgroundColor: ['#d4af37', '#e0e0e0', '#444', '#b8860b', '#888', '#222'], borderWidth: 0 }] },
-        options: { ...chartOptions, cutout: '75%' }
-    });
+    // Distribution Chart (Donut)
+    const distCtx = document.getElementById('distributionChart')?.getContext('2d');
+    if (distCtx) {
+        distributionChart = new Chart(distCtx, {
+            type: 'doughnut',
+            data: {
+                labels: [],
+                datasets: [{
+                    data: [],
+                    backgroundColor: ['#d4af37', '#64748b', '#ffb74d', '#00c853', '#ff5252'],
+                    borderWidth: 0,
+                    hoverOffset: 10
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '75%',
+                plugins: { legend: { display: false } }
+            }
+        });
+    }
 
-    performanceChart = new Chart(pCtx, {
-        type: 'bar',
-        data: { labels: [], datasets: [{ label: 'Maliyet', data: [], backgroundColor: 'rgba(212, 175, 55, 0.05)', borderRadius: 4 }, { label: 'Değer', data: [], backgroundColor: '#d4af37', borderRadius: 4 }] },
-        options: { ...chartOptions, scales: { y: { grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#888' } }, x: { grid: { display: false }, ticks: { color: '#888' } } } }
-    });
+    // Valuation Bar Chart
+    const valCtx = document.getElementById('valuationBarChart')?.getContext('2d');
+    if (valCtx) {
+        valuationBarChart = new Chart(valCtx, {
+            type: 'bar',
+            data: {
+                labels: ['THYAO', 'SASA', 'EREGL', 'ASELS'],
+                datasets: [
+                    { label: 'Piyasa Değeri', data: [1200, 900, 800, 700], backgroundColor: '#ffffff', borderRadius: 4 },
+                    { label: 'Defter Değeri', data: [800, 700, 600, 400], backgroundColor: '#64748b', borderRadius: 4 }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { grid: { display: false } },
+                    y: { grid: { color: 'rgba(255,255,255,0.03)' } }
+                }
+            }
+        });
+    }
+
+    // Performance Chart
+    const perfCtx = document.getElementById('performanceChart')?.getContext('2d');
+    if (perfCtx) {
+        performanceChart = new Chart(perfCtx, {
+            type: 'line',
+            data: {
+                labels: ['1 ay', '2 ay', '3 ay', '4 ay', '5 ay', '6 ay'],
+                datasets: [
+                    { label: 'Portföy', data: [0, 5, 12, 8, 15, 20], borderColor: '#d4af37', borderWidth: 2, tension: 0.4, pointRadius: 4, pointBackgroundColor: '#d4af37' },
+                    { label: 'BIST100', data: [0, 3, 7, 5, 10, 14], borderColor: '#64748b', borderWidth: 2, tension: 0.4, pointRadius: 0 },
+                    { label: 'ALTIN', data: [0, 2, 4, 6, 8, 9], borderColor: '#ffb74d', borderWidth: 2, tension: 0.4, pointRadius: 4, pointBackgroundColor: '#ffb74d' }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { grid: { display: false } },
+                    y: { grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { callback: v => '%' + v } }
+                }
+            }
+        });
+    }
 };
 
 const updateCharts = () => {
-    if (!distributionChart || !performanceChart) return;
-    const labels = portfolio.map(s => s.ticker.toUpperCase());
-    const vals = portfolio.map(s => parseFloat(s.lots) * parseFloat(s.currentPrice));
-    const costs = portfolio.map(s => parseFloat(s.lots) * parseFloat(s.avgCost));
-    distributionChart.data.labels = labels; distributionChart.data.datasets[0].data = vals; distributionChart.update();
-    performanceChart.data.labels = labels; performanceChart.data.datasets[0].data = costs; performanceChart.data.datasets[1].data = vals; performanceChart.update();
+    if (distributionChart) {
+        distributionChart.data.labels = portfolio.map(s => s.ticker);
+        distributionChart.data.datasets[0].data = portfolio.map(s => s.lots * s.currentPrice);
+        distributionChart.update();
+    }
+    
+    // For the main chart, we simulate a trend if there's portfolio
+    if (mainAreaChart && portfolio.length > 0) {
+        const total = portfolio.reduce((a, b) => a + (b.lots * b.currentPrice), 0);
+        const baseData = [total * 0.85, total * 0.9, total * 0.88, total * 0.95, total * 0.92, total * 0.98, total];
+        mainAreaChart.data.datasets[0].data = baseData;
+        mainAreaChart.update();
+    }
 };
 
-// --- Global Actions ---
+// --- Tab Switching ---
+const initTabs = () => {
+    const navItems = document.querySelectorAll('.nav-item');
+    const dashboardBody = document.querySelector('.dashboard-body');
+    const portfolioSection = document.getElementById('portfolioSection');
+    const analysisSection = document.getElementById('analysisSection');
+
+    navItems.forEach(item => {
+        item.addEventListener('click', (e) => {
+            if (item.id === 'openSyncModalBtn') return; // Skip settings button
+            e.preventDefault();
+            
+            navItems.forEach(i => i.classList.remove('active'));
+            item.classList.add('active');
+            
+            const tab = item.getAttribute('data-tab');
+            
+            // Hide all
+            dashboardBody.children[0].parentElement.querySelectorAll(':scope > div').forEach(c => {
+                if (c.classList.contains('summary-grid') || c.classList.contains('main-chart-card') || c.classList.contains('bottom-grid')) {
+                    c.style.display = tab === 'dashboard' ? '' : 'none';
+                }
+            });
+            
+            if (portfolioSection) portfolioSection.style.display = tab === 'portfolio' ? 'block' : 'none';
+            if (analysisSection) analysisSection.style.display = tab === 'analysis' ? 'block' : 'none';
+        });
+    });
+};
+
+// --- Actions ---
 window.deleteStock = (id) => { if (confirm('Emin misiniz?')) { portfolio = portfolio.filter(s => s.id !== id); saveToLocalStorage(); renderTable(); } };
 window.openEditModal = (id) => {
     const s = portfolio.find(x => x.id === id);
@@ -248,7 +337,6 @@ window.openEditModal = (id) => {
     document.getElementById('editCurrentPrice').value = s.currentPrice;
     editModal.classList.add('show');
 };
-
 window.deleteAnalysis = (id) => { if (confirm('Emin misiniz?')) { analysis = analysis.filter(a => a.id !== id); saveToLocalStorage(); renderAnalysisTable(); } };
 window.openEditAnalysis = (id) => {
     const a = analysis.find(x => x.id === id);
@@ -262,90 +350,48 @@ window.openEditAnalysis = (id) => {
     document.getElementById('a_debt').value = a.debt;
     document.getElementById('a_story').value = a.story;
     document.getElementById('a_margin').value = a.margin;
-    document.getElementById('analysisModalTitle').textContent = 'Analiz Düzenle';
     analysisModal.classList.add('show');
 };
-
 window.closeModal = (id) => document.getElementById(id).classList.remove('show');
 
-// --- Cloud Sync & Restore ---
+// --- Cloud Sync ---
 document.getElementById('backupBtn')?.addEventListener('click', async () => {
-    const data = { portfolio, analysis };
     const btn = document.getElementById('backupBtn');
-
-    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Buluta Yükleniyor...';
-
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Yükleniyor...';
     try {
         const res = await fetch('https://bytebin.lucko.me/post', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json; charset=utf-8' },
-            body: JSON.stringify(data)
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ portfolio, analysis })
         });
-
-        if (!res.ok) throw new Error("API Hatası");
-
         const result = await res.json();
-
-        if (result.key) {
-            document.getElementById('walletIdDisplay').textContent = result.key;
-            document.getElementById('walletBox').style.display = 'block';
-            btn.innerHTML = '<i class="fa-solid fa-check"></i> BAŞARILI';
-            setTimeout(() => {
-                btn.innerHTML = '<i class="fa-solid fa-plus-circle"></i> BULUTA YEDEKLE';
-            }, 3000);
-        } else {
-            throw new Error("Kod alınamadı");
-        }
-    } catch (e) {
-        alert("Bulut bağlantısında hata oluştu. Lütfen tekrar deneyin.");
-        btn.innerHTML = '<i class="fa-solid fa-plus-circle"></i> BULUTA YEDEKLE';
-    }
+        document.getElementById('walletIdDisplay').textContent = result.key;
+        document.getElementById('walletBox').style.display = 'block';
+        btn.innerHTML = 'YEDEKLEME BAŞARILI';
+    } catch (e) { alert("Hata oluştu."); btn.innerHTML = 'BULUTA YEDEKLE'; }
 });
 
 document.getElementById('restoreBtn')?.addEventListener('click', async () => {
     const code = document.getElementById('restoreInput').value.trim();
-
-    if (!code) {
-        alert("Lütfen sistemin verdiği kısa kodu girin.");
-        return;
-    }
-
-    const btn = document.getElementById('restoreBtn');
-    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> İndiriliyor...';
-
+    if (!code) return;
     try {
         const res = await fetch(`https://bytebin.lucko.me/${code}`);
-        if (!res.ok) throw new Error("Bulunamadı");
-
         const result = await res.json();
-
-        if (result && typeof result === 'object') {
-            portfolio = result.portfolio || [];
-            analysis = result.analysis || [];
-            saveToLocalStorage();
-            renderTable();
-            renderAnalysisTable();
-            closeModal('syncModal');
-            alert("Veriler buluttan başarıyla yüklendi.");
-        } else {
-            alert("Cüzdan verisi geçerli değil.");
-        }
-    } catch (err) {
-        alert("Bağlantı hatası veya geçersiz kod. Lütfen kodu doğru girdiğinizden emin olun.");
-    } finally {
-        btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-down" style="margin-right: 8px;"></i>CÜZDANI İNDİR';
-    }
-});
-
-document.getElementById('copyBtn')?.addEventListener('click', () => {
-    navigator.clipboard.writeText(document.getElementById('walletIdDisplay').textContent);
-    alert("Kısa kod kopyalandı.");
+        portfolio = result.portfolio || [];
+        analysis = result.analysis || [];
+        saveToLocalStorage(); renderTable(); renderAnalysisTable();
+        closeModal('syncModal');
+    } catch (err) { alert("Kod geçersiz."); }
 });
 
 // --- Events ---
 document.addEventListener('DOMContentLoaded', () => {
     initCharts();
+    initTabs();
     loadFromLocalStorage();
+    
+    // Update update time
+    document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString('tr-TR');
 
     addStockForm?.addEventListener('submit', (e) => {
         e.preventDefault();
@@ -369,7 +415,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    analysisForm?.addEventListener('submit', (e) => {
+    document.getElementById('analysisForm')?.addEventListener('submit', (e) => {
         e.preventDefault();
         const id = document.getElementById('analysisId').value;
         const aObj = {
@@ -391,8 +437,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.getElementById('openAddStockBtn')?.addEventListener('click', () => { addStockForm.reset(); document.getElementById('addStockModal').classList.add('show'); });
-    document.getElementById('addAnalysisBtn')?.addEventListener('click', () => { analysisForm.reset(); document.getElementById('analysisId').value = ''; document.getElementById('analysisModalTitle').textContent = 'Yeni Analiz Ekle'; analysisModal.classList.add('show'); });
-    document.getElementById('deleteAllBtn')?.addEventListener('click', () => { if (confirm('Tüm portföyü silmek istediğinize emin misiniz?')) { portfolio = []; saveToLocalStorage(); renderTable(); } });
-    document.getElementById('deleteAnalysisBtn')?.addEventListener('click', () => { if (confirm('Tüm analizleri temizlemek istediğinize emin misiniz?')) { analysis = []; saveToLocalStorage(); renderAnalysisTable(); } });
-    document.getElementById('openSyncModalBtn')?.addEventListener('click', () => syncModal.classList.add('show'));
+    document.getElementById('addAnalysisBtn')?.addEventListener('click', () => { analysisModal.classList.add('show'); });
+    document.getElementById('openSyncModalBtn')?.addEventListener('click', (e) => { e.preventDefault(); syncModal.classList.add('show'); });
 });
