@@ -18,7 +18,27 @@
 
 <body>
     <div class="dashboard-app">
-        <!-- Sidebar -->
+        <div class="app-container">
+        <!-- Ticker Tape at Top -->
+        <div class="tradingview-widget-container" style="background: var(--card-bg); border-bottom: 1px solid var(--border);">
+            <div class="tradingview-widget-container__widget"></div>
+            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
+            {
+            "symbols": [
+                { "proName": "FX:USDTRY", "title": "USD/TRY" },
+                { "proName": "FX:EURTRY", "title": "EUR/TRY" },
+                { "proName": "BITSTAMP:BTCUSD", "title": "Bitcoin" },
+                { "proName": "FX_IDC:XAUUSD", "title": "Altın" }
+            ],
+            "showSymbolLogo": true,
+            "colorTheme": "dark",
+            "isTransparent": true,
+            "displayMode": "adaptive",
+            "locale": "tr"
+            }
+            </script>
+        </div>
+
         <aside class="sidebar">
             <div class="brand">
                 <div class="logo">
@@ -207,7 +227,7 @@
                     </div>
                 </div>
 
-                <!-- Markets Section (Live TradingView Widgets) -->
+                <!-- Markets Section -->
                 <div id="marketsSection" class="tab-content" style="display:none; margin-top: 2rem;">
                     <div class="summary-grid" style="margin-bottom: 2rem;">
                         <!-- USD/TRY Widget -->
@@ -222,9 +242,6 @@
                                 "locale": "tr",
                                 "dateRange": "12M",
                                 "colorTheme": "dark",
-                                "trendLineColor": "rgba(41, 98, 255, 1)",
-                                "underLineColor": "rgba(41, 98, 255, 0.3)",
-                                "underLineBottomColor": "rgba(41, 98, 255, 0)",
                                 "isTransparent": true,
                                 "autosize": true
                                 }
@@ -243,30 +260,6 @@
                                 "locale": "tr",
                                 "dateRange": "12M",
                                 "colorTheme": "dark",
-                                "trendLineColor": "rgba(41, 98, 255, 1)",
-                                "underLineColor": "rgba(41, 98, 255, 0.3)",
-                                "underLineBottomColor": "rgba(41, 98, 255, 0)",
-                                "isTransparent": true,
-                                "autosize": true
-                                }
-                                </script>
-                            </div>
-                        </div>
-                        <!-- BIST100 Widget -->
-                        <div class="dashboard-card" style="height: 150px; overflow: hidden; padding:0;">
-                            <div class="tradingview-widget-container">
-                                <div class="tradingview-widget-container__widget"></div>
-                                <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
-                                {
-                                "symbol": "BIST:XU100",
-                                "width": "100%",
-                                "height": "100%",
-                                "locale": "tr",
-                                "dateRange": "12M",
-                                "colorTheme": "dark",
-                                "trendLineColor": "rgba(0, 200, 83, 1)",
-                                "underLineColor": "rgba(0, 200, 83, 0.3)",
-                                "underLineBottomColor": "rgba(0, 200, 83, 0)",
                                 "isTransparent": true,
                                 "autosize": true
                                 }
@@ -274,35 +267,13 @@
                             </div>
                         </div>
                     </div>
-
-                    <!-- Market Heatmap or Detailed List -->
-                    <div class="dashboard-card" style="height: 500px; padding:0;">
-                        <div class="tradingview-widget-container">
-                            <div class="tradingview-widget-container__widget"></div>
-                            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-market-quotes.js" async>
-                            {
-                            "width": "100%",
-                            "height": "100%",
-                            "symbolsGroups": [
-                                {
-                                "name": "Borsa İstanbul",
-                                "originalName": "Indices",
-                                "symbols": [
-                                    { "name": "BIST:XU100", "displayName": "BIST 100" },
-                                    { "name": "BIST:XU030", "displayName": "BIST 30" },
-                                    { "name": "BIST:XU050", "displayName": "BIST 50" },
-                                    { "name": "BIST:XU500", "displayName": "BIST 500" },
-                                    { "name": "BIST:XU100", "displayName": "BIST 100" }
-                                ]
-                                }
-                            ],
-                            "showSymbolLogo": true,
-                            "colorTheme": "dark",
-                            "isTransparent": true,
-                            "locale": "tr"
-                            }
-                            </script>
-                        </div>
+                    
+                    <div class="dashboard-card" style="padding: 2rem; text-align: center; background: rgba(255,255,255,0.02);">
+                        <i class="fa-solid fa-circle-info" style="font-size: 2rem; color: var(--accent); margin-bottom: 1rem;"></i>
+                        <p style="color: var(--text-muted); line-height: 1.6;">
+                            Borsa İstanbul (BIST) verileri, resmi lisans kısıtlamaları nedeniyle TradingView tarafından harici sitelerde doğrudan gösterilememektedir. <br>
+                            Bu nedenle piyasa takibinizi üstte bulunan <b>Canlı Bilgi Bandı</b> (Dolar, Euro, Bitcoin, Altın) üzerinden anlık olarak yapabilirsiniz.
+                        </p>
                     </div>
                 </div>
 
