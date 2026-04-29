@@ -19,14 +19,14 @@
     --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
     --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     
-    /* Auto-Layout Tokens */
-    --card-padding: clamp(1rem, 2vw, 2rem);
-    --card-gap: clamp(0.5rem, 1.5vw, 1.5rem);
-    --font-xl: clamp(1.25rem, 2.5vw, 2.2rem);
-    --font-lg: clamp(1rem, 1.8vw, 1.5rem);
-    --font-md: clamp(0.85rem, 1.2vw, 1rem);
-    --font-sm: clamp(0.7rem, 0.9vw, 0.8rem);
-    --font-xs: clamp(0.6rem, 0.8vw, 0.7rem);
+    /* Auto-Layout Tokens - Optimized for impact */
+    --card-padding: clamp(1.2rem, 2.5vw, 2.2rem);
+    --card-gap: clamp(0.75rem, 2vw, 1.8rem);
+    --font-xl: clamp(1.5rem, 3.5vw, 2.8rem);
+    --font-lg: clamp(1.2rem, 2.2vw, 1.8rem);
+    --font-md: clamp(0.9rem, 1.5vw, 1.1rem);
+    --font-sm: clamp(0.75rem, 1.1vw, 0.9rem);
+    --font-xs: clamp(0.65rem, 0.9vw, 0.75rem);
 }
 
 * {
@@ -280,10 +280,10 @@ body {
     border: 1px solid var(--border);
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: center; /* Center content vertically */
     gap: var(--card-gap);
     transition: var(--transition);
-    min-height: 160px;
+    min-height: clamp(160px, 20vh, 220px); /* Dynamic height */
     overflow: hidden;
 }
 
