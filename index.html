@@ -244,13 +244,17 @@
                         <div class="dashboard-card" style="height: 150px; overflow: hidden;">
                             <div class="tradingview-widget-container">
                                 <div class="tradingview-widget-container__widget"></div>
-                                <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-single-quote.js" async>
+                                <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
                                 {
                                 "symbol": "BIST:XU100",
                                 "width": "100%",
+                                "height": "100%",
+                                "locale": "tr",
+                                "dateRange": "12M",
                                 "colorTheme": "dark",
                                 "isTransparent": true,
-                                "locale": "tr"
+                                "autosize": true,
+                                "largeChartUrl": ""
                                 }
                                 </script>
                             </div>
@@ -272,23 +276,15 @@
                             "showFloatingTooltip": false,
                             "width": "100%",
                             "height": "100%",
-                            "plotLineColorGrowing": "rgba(41, 98, 255, 1)",
-                            "plotLineColorFalling": "rgba(41, 98, 255, 1)",
-                            "gridLineColor": "rgba(240, 243, 250, 0)",
-                            "scaleFontColor": "rgba(106, 109, 120, 1)",
-                            "belowLineFillColorGrowing": "rgba(41, 98, 255, 0.12)",
-                            "belowLineFillColorFalling": "rgba(41, 98, 255, 0.12)",
-                            "belowLineFillColorGrowingBottom": "rgba(41, 98, 255, 0)",
-                            "belowLineFillColorFallingBottom": "rgba(41, 98, 255, 0)",
-                            "symbolActiveColor": "rgba(41, 98, 255, 0.12)",
                             "tabs": [
                                 {
-                                "title": "Endeksler",
+                                "title": "Borsa İstanbul",
                                 "symbols": [
                                     { "s": "BIST:XU100", "d": "BIST 100" },
                                     { "s": "BIST:XU030", "d": "BIST 30" },
                                     { "s": "BIST:XU050", "d": "BIST 50" },
-                                    { "s": "BIST:XU500", "d": "BIST 500" }
+                                    { "s": "BIST:XU500", "d": "BIST 500" },
+                                    { "s": "BIST:XU100", "d": "BIST 100" }
                                 ],
                                 "originalTitle": "Indices"
                                 }
