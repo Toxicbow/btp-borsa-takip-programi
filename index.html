@@ -250,15 +250,68 @@
                         </div>
                     </div>
 
-                    <!-- BIST Market Table (Official TV Screener Iframe) -->
-                    <div class="dashboard-card" style="height: 600px; padding:0; overflow: hidden; margin-top: 1rem;">
-                        <iframe 
-                            src="https://s.tradingview.com/embed-widget/screener/?locale=tr#%7B%22width%22%3A%22100%25%22%2C%22height%22%3A600%2C%22defaultColumn%22%3A%22overview%22%2C%22defaultScreen%22%3A%22most_capitalized%22%2C%22market%22%3A%22turkey%22%2C%22showToolbar%22%3Atrue%2C%22colorTheme%22%3A%22dark%22%2C%22isTransparent%22%3Atrue%7D" 
-                            width="100%" 
-                            height="100%" 
-                            frameborder="0" 
-                            style="border:none;">
-                        </iframe>
+                    <!-- BIST Tracking Center (Modern Tabbed Layout) -->
+                    <div class="dashboard-card" style="margin-top: 1rem; padding: 0; overflow: hidden;">
+                        <div class="card-header" style="padding: 1.5rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                <div style="background: var(--accent); width: 10px; height: 10px; border-radius: 50%;"></div>
+                                <h3 style="margin:0; font-size: 1.1rem;">BIST Takip Merkezi</h3>
+                            </div>
+                            <div class="market-tabs" style="display: flex; gap: 0.5rem; background: rgba(255,255,255,0.05); padding: 0.3rem; border-radius: 8px;">
+                                <button class="market-tab-btn active" onclick="switchMarketTab('bist30')" style="padding: 0.5rem 1.2rem; border: none; background: none; color: var(--text-muted); cursor: pointer; border-radius: 6px; font-weight: 500; transition: all 0.2s;">BIST 30</button>
+                                <button class="market-tab-btn" onclick="switchMarketTab('bist100')" style="padding: 0.5rem 1.2rem; border: none; background: none; color: var(--text-muted); cursor: pointer; border-radius: 6px; font-weight: 500; transition: all 0.2s;">BIST 100</button>
+                                <button class="market-tab-btn" onclick="switchMarketTab('bistAll')" style="padding: 0.5rem 1.2rem; border: none; background: none; color: var(--text-muted); cursor: pointer; border-radius: 6px; font-weight: 500; transition: all 0.2s;">Tüm BIST</button>
+                            </div>
+                        </div>
+
+                        <div id="marketTabContent" style="height: 600px; position: relative;">
+                            <!-- BIST 30 (Default) -->
+                            <div id="bist30" class="market-pane" style="height: 100%;">
+                                <div class="tradingview-widget-container" style="height: 100%;">
+                                    <div class="tradingview-widget-container__widget"></div>
+                                    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-market-quotes.js" async>
+                                    {
+                                    "width": "100%", "height": "100%",
+                                    "symbolsGroups": [{
+                                        "name": "BIST 30",
+                                        "symbols": [
+                                            {"name": "BIST:THYAO"}, {"name": "BIST:SASA"}, {"name": "BIST:EREGL"}, {"name": "BIST:ASELS"}, {"name": "BIST:KCHOL"},
+                                            {"name": "BIST:GARAN"}, {"name": "BIST:TUPRS"}, {"name": "BIST:SISE"}, {"name": "BIST:AKBNK"}, {"name": "BIST:BIMAS"},
+                                            {"name": "BIST:EKGYO"}, {"name": "BIST:ISCTR"}, {"name": "BIST:KRDMD"}, {"name": "BIST:KOZAL"}, {"name": "BIST:PETKM"},
+                                            {"name": "BIST:PGSUS"}, {"name": "BIST:SAHOL"}, {"name": "BIST:TOASO"}, {"name": "BIST:YKBNK"}, {"name": "BIST:VESTL"}
+                                        ]
+                                    }],
+                                    "showSymbolLogo": true, "colorTheme": "dark", "isTransparent": true, "locale": "tr"
+                                    }
+                                    </script>
+                                </div>
+                            </div>
+                            <!-- BIST 100 (Hidden) -->
+                            <div id="bist100" class="market-pane" style="height: 100%; display: none;">
+                                <div class="tradingview-widget-container" style="height: 100%;">
+                                    <div class="tradingview-widget-container__widget"></div>
+                                    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-market-quotes.js" async>
+                                    {
+                                    "width": "100%", "height": "100%",
+                                    "symbolsGroups": [{
+                                        "name": "BIST 100 Endeks",
+                                        "symbols": [{"name": "BIST:XU100"}, {"name": "BIST:XU030"}, {"name": "BIST:XU050"}]
+                                    }, {
+                                        "name": "Öne Çıkanlar",
+                                        "symbols": [
+                                            {"name": "BIST:HEKTS"}, {"name": "BIST:SMRTG"}, {"name": "BIST:KONTR"}, {"name": "BIST:ZOREN"}, {"name": "BIST:ODAS"}
+                                        ]
+                                    }],
+                                    "showSymbolLogo": true, "colorTheme": "dark", "isTransparent": true, "locale": "tr"
+                                    }
+                                    </script>
+                                </div>
+                            </div>
+                            <!-- BIST All/500 (Hidden) -->
+                            <div id="bistAll" class="market-pane" style="height: 100%; display: none;">
+                                <iframe src="https://s.tradingview.com/embed-widget/screener/?locale=tr#%7B%22width%22%3A%22100%25%22%2C%22height%22%3A600%2C%22defaultColumn%22%3A%22overview%22%2C%22defaultScreen%22%3A%22most_capitalized%22%2C%22market%22%3A%22turkey%22%2C%22showToolbar%22%3Atrue%2C%22colorTheme%22%3A%22dark%22%2C%22isTransparent%22%3Atrue%7D" width="100%" height="100%" frameborder="0" style="border:none;"></iframe>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
