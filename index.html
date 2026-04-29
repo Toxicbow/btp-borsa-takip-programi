@@ -279,9 +279,65 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Watchlist (Takip) Section -->
+                <div id="followSection" class="tab-content" style="display:none; margin-top: 2rem;">
+                    <div class="summary-grid" style="grid-template-columns: 2fr 1fr; gap: 2rem;">
+                        <!-- Institutional Model Portfolios -->
+                        <div class="table-card" style="margin:0;">
+                            <div class="card-header" style="padding: 1.5rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+                                <h3 style="margin:0; font-size: 1.1rem; display: flex; align-items: center; gap: 10px;">
+                                    <i class="fa-solid fa-building-columns" style="color: var(--accent);"></i>
+                                    Kurum Model Portföyleri
+                                </h3>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">Ortalama Hedef Fiyatlar</span>
+                            </div>
+                            <table id="watchlistTable">
+                                <thead>
+                                    <tr>
+                                        <th>Hisse</th>
+                                        <th>Kurum</th>
+                                        <th>Hedef</th>
+                                        <th>Potansiyel</th>
+                                        <th>Tavsiye</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="watchlistTableBody">
+                                    <!-- Populated via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Technical Rating Widget -->
+                        <div class="dashboard-card" style="margin:0; padding: 1.5rem;">
+                            <div class="card-header" style="padding: 0; margin-bottom: 1.5rem; border-bottom: none;">
+                                <h3 style="margin:0; font-size: 1.1rem; display: flex; align-items: center; gap: 10px;">
+                                    <i class="fa-solid fa-gauge-high" style="color: var(--accent);"></i>
+                                    Teknik Puanlama
+                                </h3>
+                            </div>
+                            <div class="tradingview-widget-container" style="height: 400px;">
+                                <div class="tradingview-widget-container__widget"></div>
+                                <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js" async>
+                                {
+                                "interval": "1D",
+                                "width": "100%",
+                                "isTransparent": true,
+                                "height": "100%",
+                                "symbol": "BIST:XU100",
+                                "showIntervalTabs": true,
+                                "displayMode": "single",
+                                "locale": "tr",
+                                "colorTheme": "dark"
+                                }
+                                </script>
+                            </div>
+                            <p style="font-size: 0.7rem; color: var(--text-muted); margin-top: 1rem; line-height: 1.4;">
+                                * Teknik puanlama TradingView osilatörleri ve hareketli ortalamaları baz alınarak anlık hesaplanır.
+                            </p>
+                        </div>
                     </div>
                 </div>
-
             </div>
         </main>
     </div>

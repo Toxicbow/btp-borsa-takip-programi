@@ -491,6 +491,52 @@ const initPeriodButtons = () => {
     });
 };
 
+// --- Watchlist / Consensus Data ---
+const consensusData = [
+    { ticker: "THYAO", institution: "İş Yatırım", target: 450.00, recommendation: "AL", current: 315.75 },
+    { ticker: "EREGL", institution: "Garanti BBVA", target: 65.50, recommendation: "AL", current: 48.20 },
+    { ticker: "SASA", institution: "Ak Yatırım", target: 45.00, recommendation: "TUT", current: 38.40 },
+    { ticker: "ASELS", institution: "Deniz Yatırım", target: 82.00, recommendation: "AL", current: 64.10 },
+    { ticker: "KCHOL", institution: "Yapı Kredi", target: 285.00, recommendation: "AL", current: 202.40 },
+    { ticker: "TUPRS", institution: "OYAK Yatırım", target: 215.00, recommendation: "AL", current: 169.50 },
+    { ticker: "SISE", institution: "HSBC", target: 68.00, recommendation: "AL", current: 48.90 },
+    { ticker: "BIMAS", institution: "İş Yatırım", target: 610.00, recommendation: "AL", current: 433.80 },
+    { ticker: "AKBNK", institution: "Garanti BBVA", target: 92.00, recommendation: "AL", current: 75.95 },
+    { ticker: "ISCTR", institution: "Ak Yatırım", target: 18.50, recommendation: "AL", current: 12.85 }
+];
+
+const renderWatchlistTable = () => {
+    const tbody = document.getElementById('watchlistTableBody');
+    if (!tbody) return;
+
+    tbody.innerHTML = consensusData.map(item => {
+        const potential = ((item.target / item.current) - 1) * 100;
+        const isHighPotential = potential > 30;
+
+        return `
+            <tr>
+                <td style="padding: 1.2rem 1rem;">
+                    <div style="font-weight: 700; color: var(--text-primary); font-size: 1rem;">${item.ticker}</div>
+                    <div style="font-size: 0.7rem; color: var(--text-muted);">Güncel: ${item.current.toFixed(2)} ₺</div>
+                </td>
+                <td style="color: var(--text-muted); font-size: 0.9rem;">${item.institution}</td>
+                <td style="font-family: 'JetBrains Mono', monospace; font-weight: 600;">${item.target.toFixed(2)} ₺</td>
+                <td>
+                    <span class="badge ${isHighPotential ? 'badge-profit' : ''}" style="background: ${isHighPotential ? 'rgba(0, 230, 118, 0.15)' : 'rgba(255,255,255,0.05)'}; color: ${isHighPotential ? '#00e676' : 'var(--text-muted)'}; padding: 0.5rem 0.8rem; border-radius: 6px; font-weight: 700;">
+                        +%${potential.toFixed(1)}
+                    </span>
+                </td>
+                <td>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <div style="width: 8px; height: 8px; border-radius: 50%; background: ${item.recommendation === 'AL' ? '#00e676' : '#ffab00'};"></div>
+                        <span style="font-weight: 600; font-size: 0.85rem; color: ${item.recommendation === 'AL' ? '#00e676' : '#ffab00'}">${item.recommendation}</span>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }).join('');
+};
+
 // --- Tab Switching ---
 const initTabs = () => {
     const navItems = document.querySelectorAll('.nav-item');
@@ -498,6 +544,7 @@ const initTabs = () => {
     const portfolioSection = document.getElementById('portfolioSection');
     const analysisSection = document.getElementById('analysisSection');
     const marketsSection = document.getElementById('marketsSection');
+    const followSection = document.getElementById('followSection');
 
     navItems.forEach(item => {
         item.addEventListener('click', (e) => {
@@ -519,6 +566,10 @@ const initTabs = () => {
             if (portfolioSection) portfolioSection.style.display = tab === 'portfolio' ? 'block' : 'none';
             if (analysisSection) analysisSection.style.display = tab === 'analysis' ? 'block' : 'none';
             if (marketsSection) marketsSection.style.display = tab === 'markets' ? 'block' : 'none';
+            if (followSection) {
+                followSection.style.display = tab === 'follow' ? 'block' : 'none';
+                if (tab === 'follow') renderWatchlistTable();
+            }
         });
     });
 };
@@ -635,7 +686,15 @@ document.addEventListener('DOMContentLoaded', () => {
         saveToLocalStorage(); renderAnalysisTable(); closeModal('analysisModal');
     });
 
-    document.getElementById('openAddStockBtn')?.addEventListener('click', () => { addStockForm.reset(); document.getElementById('addStockModal').classList.add('show'); });
-    document.getElementById('addAnalysisBtn')?.addEventListener('click', () => { analysisModal.classList.add('show'); });
+    document.getElementById('openAddStockBtn')?.addEventListener('click', () => { 
+        document.getElementById('addStockForm').reset(); 
+        document.getElementById('addStockModal').classList.add('show'); 
+    });
+    document.getElementById('addAnalysisBtn')?.addEventListener('click', () => { 
+        document.getElementById('analysisForm').reset();
+        document.getElementById('analysisId').value = '';
+        document.getElementById('analysisModalTitle').textContent = 'Yeni Analiz Ekle';
+        analysisModal.classList.add('show'); 
+    });
     document.getElementById('openSyncModalBtn')?.addEventListener('click', (e) => { e.preventDefault(); syncModal.classList.add('show'); });
 });
